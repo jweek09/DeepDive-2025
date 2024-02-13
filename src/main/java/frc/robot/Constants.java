@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.lib.PIDGains;
 
 /**
@@ -28,6 +29,8 @@ public final class Constants {
         public static final double leftYDeadband = 0.01;
         public static final double rightXDeadband = 0.01;
         public static final double rightYDeadband = 0.01;
+        public static final double armManualDeadband = 0.05;
+        public static final double armManualScale = 0.1;
     }
 
     public static class SwerveConstants {
@@ -157,6 +160,47 @@ public final class Constants {
         }
     }
 
+    public static class ArmConstants {
+        public static final int leftCanID = 16;
+        public static final boolean leftInverted = true;
+
+        public static final int rightCanID = 17;
+        public static final boolean rightInverted = false;
+
+        public static final int absoluteEncoderPort = 0;
+        public static final boolean absoluteEncoderInverted = true;
+        public static final double absoluteEncoderConversionFactor = 2 * Math.PI;
+        public static final double absoluteEncoderOffset = 6.069587;
+        /** When filtering values from the absolute encoder to reduce noise,
+         * this number is the interval which it actually considers on.
+         * Values reported in significantly less time than this will be discarded.
+         * Making this lower may decrease responsiveness by increasing delay.
+         * Read <a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/filters/linear-filter.html#singlepoleiir">here</a>
+         * for more because IDK if higher or lower is better. */
+        public static final double absoluteEncoderTimeConstant = 0.1;
+
+        public static final int currentLimit = 40;
+
+        public static final double minSetpoint = 0.1;
+        public static final double maxSetpoint = 2.2;
+
+        public static final double gearRatio = 1.0 / 256.0; // 256:1.
+                                                                // Make sure both numbers are doubles (x.0, not just x)
+                                                                // to avoid dividing by zero
+        public static final double positionFactor =
+                gearRatio
+                        * 2.0
+                        * Math.PI; // multiply ThroughBore value by this number and get arm position in radians
+        public static final double velocityFactor = gearRatio * 2.0 * Math.PI / 60.0;
+        public static final double armFreeSpeed = neoFreeSpeedRPM * velocityFactor;
+
+        public static final ArmFeedforward armFeedforward =
+                new ArmFeedforward(0.0, 0.47, 12.0 / armFreeSpeed, 0.0);
+        public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
+        public static final TrapezoidProfile.Constraints armMotionConstraint =
+                new TrapezoidProfile.Constraints(2.0, 2.0);
+    }
+
     public static class IntakeConstants {
         public static final int canID = 13;
         public static final boolean motorInverted = false;
@@ -185,4 +229,6 @@ public final class Constants {
 
         public static final int currentLimit = 80;
     }
+
+    public static final double neoFreeSpeedRPM = 5676;
 }
