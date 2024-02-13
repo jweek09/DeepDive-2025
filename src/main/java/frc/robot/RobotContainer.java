@@ -5,9 +5,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.SwerveControllerDriveCommand;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,7 +29,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
-    
+
+    private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
+
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController =
             new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
@@ -34,6 +41,8 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
+
+        SmartDashboard.putData(driveSubsystem);
     }
     
     
@@ -54,6 +63,15 @@ public class RobotContainer {
         // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
         // cancelling on release.
         driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+
+        driverController.a().onTrue(Commands.runOnce(() -> driveSubsystem.resetWheelEncoders()));
+
+        driveSubsystem.setDefaultCommand(new SwerveControllerDriveCommand(
+                () -> -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
+                () -> -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
+                () -> -driverController.getRightX(),
+                () -> !driverController.getHID().getYButton() // Switch to robot oriented when Y is held
+        ));
     }
     
     
