@@ -170,4 +170,13 @@ public final class Constants {
         public static final double retractDistance = -3.5;
         public static double shotFeedTime = 1.0;
     }
+
+    public static class LauncherConstants {
+        public static final int topCanId = 14;
+        public static final int bottomCanId = 15;
+        public static final boolean topMotorInverted = false;
+        public static final boolean bottomMotorInverted = false;
+
+        public static final int currentLimit = 80;
+    }
 }

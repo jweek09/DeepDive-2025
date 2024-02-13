@@ -16,10 +16,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.FeedLauncherCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 
 
 /**
@@ -34,6 +36,8 @@ public class RobotContainer {
 
     private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
+    private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
+    private double defaultLauncherSpeed = 0.5;
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController =
@@ -47,6 +51,12 @@ public class RobotContainer {
 
         SmartDashboard.putData(driveSubsystem);
         SmartDashboard.putData(intakeSubsystem);
+        SmartDashboard.putData(launcherSubsystem);
+
+        SmartDashboard.putData("Default Shooter Speed", builder -> builder.addDoubleProperty(
+                "Speed (0-1)", () -> defaultLauncherSpeed,
+                (double speed) -> defaultLauncherSpeed = MathUtil.clamp(speed, 0, 1))
+        );
     }
     
     
@@ -88,10 +98,23 @@ public class RobotContainer {
         intakeSubsystem.setDefaultCommand(new RunCommand(() -> intakeSubsystem.setPower(0.0), intakeSubsystem));
 
         driverController.b()
-                .whileTrue(new RunCommand(() -> intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower)));
+                .whileTrue(new RunCommand(() -> {
+                    intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower);
+                    launcherSubsystem.runLauncher(-0.1);
+                }, intakeSubsystem, launcherSubsystem));
 
         driverController.leftBumper()
                     .whileTrue(Commands.run(() -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem));
+
+        // configure the launcher to stop when no other command is running
+        launcherSubsystem.setDefaultCommand(new RunCommand(launcherSubsystem::stopLauncher, launcherSubsystem));
+
+        // launcher controls (button to pre-spin the launcher and button to launch)
+        driverController.rightBumper()
+                .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(defaultLauncherSpeed), launcherSubsystem));
+
+        driverController.a()
+                .onTrue(new FeedLauncherCommand(defaultLauncherSpeed));
     }
     
     
