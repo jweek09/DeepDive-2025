@@ -8,17 +8,18 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.subsystems.IntakeSubsystem;
 
 
 /**
@@ -32,6 +33,7 @@ public class RobotContainer {
     private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
     private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
+    private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController =
@@ -44,6 +46,7 @@ public class RobotContainer {
         configureBindings();
 
         SmartDashboard.putData(driveSubsystem);
+        SmartDashboard.putData(intakeSubsystem);
     }
     
     
@@ -63,9 +66,9 @@ public class RobotContainer {
         
         // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
         // cancelling on release.
-        driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+        // driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
 
-        driverController.a().onTrue(Commands.runOnce(() -> driveSubsystem.resetWheelEncoders()));
+        driverController.back().onTrue(Commands.runOnce(() -> driveSubsystem.resetWheelEncoders()));
 
         var alliance = DriverStation.getAlliance();
         double invertFieldOrientedControls =
@@ -80,6 +83,15 @@ public class RobotContainer {
         ));
 
         driverController.x().whileTrue(driveSubsystem.getPathPlannerFollowCommand("Super Simple", true));
+
+        // set the intake to stop (0 power) when no other command is running
+        intakeSubsystem.setDefaultCommand(new RunCommand(() -> intakeSubsystem.setPower(0.0), intakeSubsystem));
+
+        driverController.b()
+                .whileTrue(new RunCommand(() -> intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower)));
+
+        driverController.leftBumper()
+                    .whileTrue(Commands.run(() -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem));
     }
     
     
