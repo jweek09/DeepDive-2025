@@ -167,22 +167,15 @@ public final class Constants {
         public static final int rightCanID = 17;
         public static final boolean rightInverted = false;
 
-        public static final int absoluteEncoderPort = 0;
-        public static final boolean absoluteEncoderInverted = true;
-        public static final double absoluteEncoderConversionFactor = 2 * Math.PI;
-        public static final double absoluteEncoderOffset = 6.069587;
-        /** When filtering values from the absolute encoder to reduce noise,
-         * this number is the interval which it actually considers on.
-         * Values reported in significantly less time than this will be discarded.
-         * Making this lower may decrease responsiveness by increasing delay.
-         * Read <a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/filters/linear-filter.html#singlepoleiir">here</a>
-         * for more because IDK if higher or lower is better. */
-        public static final double absoluteEncoderTimeConstant = 0.1;
+        /** The port for the limit switch on the front (intake side) of the robot */
+        public static final int frontLimitSwitchPort = 2;
+        /** The port for the limit switch on the back (limelight side) of the robot */
+        public static final int backLimitSwitchPort = 1;
 
         public static final int currentLimit = 40;
 
-        public static final double minSetpoint = 0.1;
-        public static final double maxSetpoint = 2.2;
+        public static final double frontLimit = 0.0;
+        public static final double backLimit = 1.58;
 
         public static final double gearRatio = 1.0 / 256.0; // 256:1.
                                                                 // Make sure both numbers are doubles (x.0, not just x)
