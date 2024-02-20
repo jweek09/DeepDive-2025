@@ -161,14 +161,20 @@ public final class Constants {
         public static final int canID = 13;
         public static final boolean motorInverted = false;
         public static final int currentLimit = 20;
+        public static final double intakeWheelDiameter = Units.inchesToMeters(2.0);
+        public static final double motorPositionConversionFactorRotationToMeters = intakeWheelDiameter * Math.PI;
+
+        public static final int breakbeamPort = 3;
+        /** If the breakbeam reads true by default (when not blocked) */
+        public static final boolean breakbeamTrueByDefault = true;
 
         public static final PIDGains positionGains = new PIDGains(1.0, 0.0, 0.0);
         public static final double positionTolerance = 0.5;
 
         public static final double intakePower = 0.7;
 
-        public static final double retractDistance = -3.5;
-        public static double shotFeedTime = 1.0;
+        /** The time after which a note past the breakbeam is clear of the launcher */
+        public static double clearLauncherTime = 0.2;
     }
 
     public static class LauncherConstants {
