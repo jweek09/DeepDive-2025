@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.LimelightHelpers;
+import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
 import java.util.Arrays;
@@ -181,6 +183,14 @@ public class DriveSubsystem extends SubsystemBase {
 
         // Creates a path following command using AutoBuilder. This will execute any named commands when running
         return AutoBuilder.followPath(path);
+    }
+
+    public Command pathfindToPosition(Pose2d position) {
+        return AutoBuilder.pathfindToPose(position, new PathConstraints(
+                SwerveConstants.AutoConstants.maxSpeedMetersPerSecond,
+                SwerveConstants.AutoConstants.maxAccelerationMetersPerSecondSquared,
+                SwerveConstants.AutoConstants.maxAngularSpeedRadiansPerSecond,
+                SwerveConstants.AutoConstants.maxAngularAccelerationRadiansPerSecondSquared));
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {

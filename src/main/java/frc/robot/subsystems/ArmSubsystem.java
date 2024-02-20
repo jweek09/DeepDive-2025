@@ -13,6 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -372,6 +373,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() { // This method will be called once per scheduler run
+    }
+
+    public Command GoToAngleCommand(double angle) {
+        return Commands.runOnce(() -> setTargetPosition(angle), this).andThen( // Will set the target position
+                Commands.waitUntil(() -> profile.isFinished(timer.get()))); // and then wait for the arm to get there
     }
 }
 
