@@ -223,5 +223,35 @@ public final class Constants {
         public static final int currentLimit = 80;
     }
 
+    public static class ClimberConstants {
+        public static final int leftCanId = 18;
+        /** To let out (raise) the arm, the left motor will spin clockwise if false, counterclockwise if true.
+         * It will run in the opposite direction when retracting (climbing). */
+        public static final boolean leftInverted = true;
+
+        public static final int rightCanId = 19;
+        /** To let out (raise) the arm, the right motor will spin clockwise if false, counterclockwise if true.
+         * It will run in the opposite direction when retracting (climbing). */
+        public static final boolean rightInverted = false;
+
+        /** The power to run the motors at to release (raise) the arms */
+        public static final double releaseSpeed = 1;
+        /** The power to run the motors at to climb (lower) the arms.
+         * MAKE SURE THIS IS NEGATIVE!!! */
+        public static final double climbSpeed = - // Don't you dare remove this negative sign
+                                                0.5; // Change this number instead
+
+        /** The time taken by the climber in seconds,
+         * running at the given {@link frc.robot.Constants.ClimberConstants#releaseSpeed releaseSpeed},
+         * to reach its highest point.
+         */
+        public static final double releaseToTopTimeSeconds = 0.0;
+        /** The time taken by the climber in seconds,
+         * running at the given {@link frc.robot.Constants.ClimberConstants#climbSpeed climbSpeed},
+         * to retract from hits highest point to the bottom.
+         */
+        public static final double retractFullyDownTimeSeconds = 0.0;
+    }
+
     public static final double neoFreeSpeedRPM = 5676;
 }
