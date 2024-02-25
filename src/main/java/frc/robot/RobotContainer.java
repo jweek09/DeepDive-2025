@@ -17,6 +17,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -34,6 +35,7 @@ public class RobotContainer {
     private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
     private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
+    private final ArmSubsystem armSubsystem = ArmSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
     private double defaultLauncherSpeed = 0.5;
@@ -49,6 +51,7 @@ public class RobotContainer {
         configureBindings();
 
         SmartDashboard.putData(driveSubsystem);
+        SmartDashboard.putData(armSubsystem);
         SmartDashboard.putData(intakeSubsystem);
         SmartDashboard.putData(launcherSubsystem);
 
@@ -92,6 +95,16 @@ public class RobotContainer {
         ));
 
         driverController.x().whileTrue(driveSubsystem.getPathPlannerFollowCommand("Super Simple", true));
+
+        // set the arm subsystem to run the "runAutomatic" function continuously when no other command is running
+        armSubsystem.setDefaultCommand(new RunCommand(armSubsystem::runAutomatic, armSubsystem));
+
+        new Trigger(() ->
+                Math.abs(driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis()) > OperatorConstants.armManualDeadband
+        ).whileTrue(new RunCommand(
+                () ->
+                        armSubsystem.runManual((driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis()) * OperatorConstants.armManualScale)
+                , armSubsystem));
 
         // set the intake to stop (0 power) when no other command is running
         intakeSubsystem.setDefaultCommand(new RunCommand(() -> intakeSubsystem.setPower(0.0), intakeSubsystem));

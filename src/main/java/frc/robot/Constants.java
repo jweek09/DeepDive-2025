@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.lib.PIDGains;
 
 /**
@@ -28,6 +29,8 @@ public final class Constants {
         public static final double leftYDeadband = 0.01;
         public static final double rightXDeadband = 0.01;
         public static final double rightYDeadband = 0.01;
+        public static final double armManualDeadband = 0.05;
+        public static final double armManualScale = 0.1;
     }
 
     public static class SwerveConstants {
@@ -157,6 +160,40 @@ public final class Constants {
         }
     }
 
+    public static class ArmConstants {
+        public static final int leftCanID = 16;
+        public static final boolean leftInverted = true;
+
+        public static final int rightCanID = 17;
+        public static final boolean rightInverted = false;
+
+        /** The port for the limit switch on the front (intake side) of the robot */
+        public static final int frontLimitSwitchPort = 2;
+        /** The port for the limit switch on the back (limelight side) of the robot */
+        public static final int backLimitSwitchPort = 1;
+
+        public static final int currentLimit = 40;
+
+        public static final double frontLimit = 0.0;
+        public static final double backLimit = 1.58;
+
+        public static final double gearRatio = 1.0 / 256.0; // 256:1.
+                                                                // Make sure both numbers are doubles (x.0, not just x)
+                                                                // to avoid dividing by zero
+        public static final double positionFactor =
+                gearRatio
+                        * 2.0
+                        * Math.PI; // multiply ThroughBore value by this number and get arm position in radians
+        public static final double velocityFactor = gearRatio * 2.0 * Math.PI / 60.0;
+        public static final double armFreeSpeed = neoFreeSpeedRPM * velocityFactor;
+
+        public static final ArmFeedforward armFeedforward =
+                new ArmFeedforward(0.0, 0.47, 12.0 / armFreeSpeed, 0.0);
+        public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
+        public static final TrapezoidProfile.Constraints armMotionConstraint =
+                new TrapezoidProfile.Constraints(2.0, 2.0);
+    }
+
     public static class IntakeConstants {
         public static final int canID = 13;
         public static final boolean motorInverted = false;
@@ -185,4 +222,6 @@ public final class Constants {
 
         public static final int currentLimit = 80;
     }
+
+    public static final double neoFreeSpeedRPM = 5676;
 }
