@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.lib.PIDGains;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -154,5 +155,19 @@ public final class Constants {
                             maxAngularSpeedRadiansPerSecond,
                             maxAngularAccelerationRadiansPerSecondSquared);
         }
+    }
+
+    public static class IntakeConstants {
+        public static final int canID = 13;
+        public static final boolean motorInverted = false;
+        public static final int currentLimit = 20;
+
+        public static final PIDGains positionGains = new PIDGains(1.0, 0.0, 0.0);
+        public static final double positionTolerance = 0.5;
+
+        public static final double intakePower = 0.7;
+
+        public static final double retractDistance = -3.5;
+        public static double shotFeedTime = 1.0;
     }
 }
