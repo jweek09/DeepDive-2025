@@ -93,6 +93,8 @@ public final class Constants {
             // Distance between centers of right and left wheels on robot
             public static final double wheelBase = Units.inchesToMeters(23.75);
 
+            public static final double driveBaseRadius = Math.hypot(trackWidth / 2, wheelBase / 2);
+
             public static final boolean frontLeftTurningEncoderReversed = true;
             public static final boolean backLeftTurningEncoderReversed = true;
             public static final boolean frontRightTurningEncoderReversed = true;
@@ -132,6 +134,25 @@ public final class Constants {
                     new TrapezoidProfile.Constraints(
                             PhysicalConstants.physicalMaxAngularSpeedRadiansPerSecond / 5,
                             Math.PI);
+        }
+
+        public static class AutoConstants {
+            public static final double maxSpeedMetersPerSecond = PhysicalConstants.physicalMaxSpeedMetersPerSecond / 4;
+            public static final double maxAngularSpeedRadiansPerSecond =
+                    PhysicalConstants.physicalMaxAngularSpeedRadiansPerSecond / 10;
+            public static final double maxAccelerationMetersPerSecondSquared = 3;
+            public static final double maxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
+            public static final double translationP = 5.0;
+            public static final double translationI = 0.0;
+            public static final double translationD = 0.0;
+            public static final double rotationP = 5.0;
+            public static final double rotationI = 0.0;
+            public static final double rotationD = 0.0;
+
+            public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
+                    new TrapezoidProfile.Constraints(
+                            maxAngularSpeedRadiansPerSecond,
+                            maxAngularAccelerationRadiansPerSecondSquared);
         }
     }
 }

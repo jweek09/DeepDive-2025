@@ -72,6 +72,8 @@ public class RobotContainer {
                 () -> -driverController.getRightX(),
                 () -> !driverController.getHID().getYButton() // Switch to robot oriented when Y is held
         ));
+
+        driverController.x().whileTrue(driveSubsystem.getPathPlannerFollowCommand("Super Simple", true));
     }
     
     
