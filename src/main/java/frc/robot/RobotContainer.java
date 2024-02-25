@@ -7,6 +7,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -134,7 +135,9 @@ public class RobotContainer {
                 .withPosition(0,2);
 
         shootTuningTab.addString("Shooting Position Config", () ->
-                "Pose: " + driveSubsystem.getPose().toString() + "\n---\n" +
+                "Pose: " + ((shootTuningIsRedAlliance.getBoolean(false)) ?
+                        GeometryUtil.flipFieldPose(driveSubsystem.getPose()).toString() :
+                        driveSubsystem.getPose().toString()) + "\n---\n" +
                 String.format("Arm Angle: %.4f", armSubsystem.getEncoderPosition()) + "\n---\n" +
                 String.format("Shooter Speed: %.2f", defaultLauncherSpeed.getAsDouble())
         ).withPosition(3, 0).withSize(3, 3);
