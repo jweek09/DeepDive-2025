@@ -6,6 +6,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.OperatorConstants;
@@ -66,9 +67,14 @@ public class RobotContainer {
 
         driverController.a().onTrue(Commands.runOnce(() -> driveSubsystem.resetWheelEncoders()));
 
+        var alliance = DriverStation.getAlliance();
+        double invertFieldOrientedControls =
+                (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) // Invert field-oriented controls if on red alliance
+                        ? -1 : 1; // Multiply by -1 if true (flip controls)
+
         driveSubsystem.setDefaultCommand(new SwerveControllerDriveCommand(
-                () -> -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
-                () -> -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
+                () -> invertFieldOrientedControls * -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
+                () -> invertFieldOrientedControls * -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
                 () -> -driverController.getRightX(),
                 () -> !driverController.getHID().getYButton() // Switch to robot oriented when Y is held
         ));
