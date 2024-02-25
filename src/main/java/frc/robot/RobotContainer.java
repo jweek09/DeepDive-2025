@@ -5,10 +5,16 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,8 +22,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeNoteCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -27,6 +34,8 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 
 import java.util.ArrayList;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 
 /**
@@ -44,15 +53,27 @@ public class RobotContainer {
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
     private final ClimberSubsystem climberSubsystem = ClimberSubsystem.getInstance();
-    private double defaultLauncherSpeed = 0.5;
+    private DoubleSupplier defaultLauncherSpeed;
+    private final BooleanSupplier isRedAlliance = () ->
+            DriverStation.getAlliance().filter(value -> value == DriverStation.Alliance.Red).isPresent();
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController =
             new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-    
-    
+
+    private final SendableChooser<Command> autonomousCommand;
+
+    private double temporaryArmRotation = armSubsystem.getEncoderPosition();
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
+
+        registerAutonomousCommands();
+
+        autonomousCommand = AutoBuilder.buildAutoChooser("");
+
+        configureDashboard();
+
         // Configure the trigger bindings
         configureBindings();
 
@@ -76,11 +97,51 @@ public class RobotContainer {
         SmartDashboard.putData(armSubsystem);
         SmartDashboard.putData(intakeSubsystem);
         SmartDashboard.putData(launcherSubsystem);
+    }
 
-        SmartDashboard.putData("Default Shooter Speed", builder -> builder.addDoubleProperty(
-                "Speed (0-1)", () -> defaultLauncherSpeed,
-                (double speed) -> defaultLauncherSpeed = MathUtil.clamp(speed, 0, 1))
-        );
+    private void registerAutonomousCommands() {
+        NamedCommands.registerCommand("ShootCommand",
+                new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance));
+        NamedCommands.registerCommand("IntakeNoteCommand", new IntakeNoteCommand());
+    }
+
+    /**
+     * Configures the Shuffleboard
+     */
+    private void configureDashboard() {
+        var shootTuningTab = Shuffleboard.getTab("Shooting Position Tuning");
+
+        GenericEntry shootTuningIsRedAlliance = shootTuningTab.add("On Red Alliance Side",
+                isRedAlliance)
+                .withWidget(BuiltInWidgets.kBooleanBox)
+                .withSize(3, 1)
+                .withPosition(0,0)
+                .getEntry();
+
+        GenericEntry shooterSpeed = shootTuningTab.add("Launcher Speed", 0.5)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withSize(3, 1)
+                .withPosition(0,1)
+                .getEntry();
+
+        defaultLauncherSpeed = () -> shooterSpeed.get().getDouble();
+
+        shootTuningTab.add("Intake Note", Commands.runOnce(() -> temporaryArmRotation = armSubsystem.getEncoderPosition())
+                .andThen(new IntakeNoteCommand())
+                .andThen(armSubsystem.GoToAngleCommand(temporaryArmRotation)))
+                .withWidget(BuiltInWidgets.kCommand)
+                .withSize(3, 1)
+                .withPosition(0,2);
+
+        shootTuningTab.addString("Shooting Position Config", () ->
+                "Pose: " + driveSubsystem.getPose().toString() + "\n---\n" +
+                String.format("Arm Angle: %.4f", armSubsystem.getEncoderPosition()) + "\n---\n" +
+                String.format("Shooter Speed: %.2f", defaultLauncherSpeed.getAsDouble())
+        ).withPosition(3, 0).withSize(3, 3);
+
+        var autonomousTab = Shuffleboard.getTab("Autonomous");
+
+        autonomousTab.add("Autonomous Command", autonomousCommand);
     }
     
     
@@ -146,10 +207,10 @@ public class RobotContainer {
 
         // launcher controls (button to pre-spin the launcher and button to launch)
         driverController.rightBumper()
-                .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(defaultLauncherSpeed), launcherSubsystem));
+                .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(defaultLauncherSpeed.getAsDouble()), launcherSubsystem));
 
         driverController.a()
-                .onTrue(launcherSubsystem.shootWithSmartFeed(defaultLauncherSpeed));
+                .onTrue(launcherSubsystem.shootWithSmartFeed(defaultLauncherSpeed.getAsDouble()));
 
         climberSubsystem.setDefaultCommand(Commands.run(climberSubsystem::stopMotors, climberSubsystem));
 
@@ -168,6 +229,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return Autos.exampleAuto(exampleSubsystem);
+        return autonomousCommand.getSelected();
     }
 }
