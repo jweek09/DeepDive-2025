@@ -9,17 +9,20 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkRelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.PIDGains;
 import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private CANSparkMax motor;
-    private RelativeEncoder encoder;
-    private SparkPIDController controller;
+    private final CANSparkMax motor;
+    private final RelativeEncoder encoder;
+    private final SparkPIDController controller;
+    private final DigitalInput breakbeam = new DigitalInput(IntakeConstants.breakbeamPort);
 
     private boolean positionMode;
     private double targetPosition;
@@ -59,6 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
         motor.setIdleMode(IdleMode.kBrake);
 
         encoder = motor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+        encoder.setPositionConversionFactor(IntakeConstants.motorPositionConversionFactorRotationToMeters);
 
         controller = motor.getPIDController();
         PIDGains.setSparkMaxGains(controller, IntakeConstants.positionGains);
@@ -77,11 +81,28 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        builder.addBooleanProperty("Breakbeam Triggered", this::getBreakbeamBroken, null);
         builder.addBooleanProperty("Position Mode", () -> positionMode, null);
         builder.addDoubleProperty("Encoder Position", () -> encoder.getPosition(), null);
         builder.addDoubleProperty("Target Position", () -> targetPosition,
                 (target) -> { positionMode = true; targetPosition = target; });
         builder.addDoubleProperty("Power", () -> power, this::setPower);
+    }
+
+    /**
+     * Gets the reading from the breakbeam, inverting it based on {@link IntakeConstants#breakbeamTrueByDefault}
+     * @return True if breakbeam is broken, false if not
+     */
+    public boolean getBreakbeamBroken() {
+        return IntakeConstants.breakbeamTrueByDefault != breakbeam.get();
+    }
+
+    /**
+     * Gets a trigger based on the reading of the breakbeam, using the {@link IntakeSubsystem#getBreakbeamBroken()} function
+     * @return A trigger which will be true when the breakbeam is broken, false when unbroken
+     */
+    public Trigger getBreakbeamBrokenTrigger() {
+        return new Trigger(this::getBreakbeamBroken);
     }
 
     /**
@@ -98,15 +119,16 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Constructs a command that drives the rollers a specific distance (number of rotations)
      * from the current position and then ends the command.
+     * @param distance The distance
      * @return The retract command
      */
-    public Command retract() {
+    public Command retract(double distance) {
         Command newCommand =
                 new Command() {
                     @Override
                     public void initialize() {
                         positionMode = true;
-                        targetPosition = encoder.getPosition() - IntakeConstants.retractDistance;
+                        targetPosition = encoder.getPosition() - distance;
                     }
 
                     @Override
@@ -118,6 +140,13 @@ public class IntakeSubsystem extends SubsystemBase {
         newCommand.addRequirements(this);
 
         return newCommand;
+    }
+
+    public Command runUntilPickup(double power) {
+        return Commands.run(() -> setPower(power), // Runs at the given power
+                        this) // Requiring this subsystem
+                .until(getBreakbeamBrokenTrigger()) // Until the beam is broken
+                .finallyDo((interrupted) -> setPower(0.0)); // At which point it stops the motors
     }
 
     @Override

@@ -6,7 +6,10 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.LauncherConstants;
 
 public class LauncherSubsystem extends SubsystemBase {
@@ -110,6 +113,50 @@ public class LauncherSubsystem extends SubsystemBase {
         // set the launcher motor powers based on whether the launcher is on or not
         topMotor.set(topPower);
         bottomMotor.set(bottomPower);
+    }
+
+    /**
+     * A command that shoots the launcher, running until the breakbeam in the {@link IntakeSubsystem} is cleared
+     * with a small delay to let it clear defined by {@link frc.robot.Constants.IntakeConstants#clearLauncherTime}
+     * @param launcherSpeed The speed at which to run the shooter
+     * @return A command to run the intake and launcher until the note clears the breakbeam
+     */
+    public Command shootWithSmartFeed(double launcherSpeed) {
+        var intakeSubsystem = IntakeSubsystem.getInstance();
+
+        return Commands.run(() -> {
+                    intakeSubsystem.setPower(Constants.IntakeConstants.intakePower); // Runs the intake
+                    runLauncher(launcherSpeed); // and launcher,
+                }, intakeSubsystem, this)
+                .raceWith( // stopping it when the breakbeam is no longer broken
+                        Commands.waitUntil(intakeSubsystem.getBreakbeamBrokenTrigger().negate())
+                                .withTimeout(3) // or it times out,
+                                .andThen(Commands.waitSeconds(Constants.IntakeConstants.clearLauncherTime)) // then waiting 0.2 seconds to let it clear the launcher,
+                ).finallyDo(() -> { // finally stopping the intake and shooter when everything is done
+                    intakeSubsystem.setPower(0.0);
+                    stopLauncher();
+                });
+    }
+
+    /**
+     * Runs the intake and launcher to feed a shot, finishing after the given runTime.
+     * {@link #shootWithSmartFeed(double launcherSpeed)} should be used instead unless something is wrong with the breakbeam sensor
+     * @param launcherSpeed The speed at which to run the launcher
+     * @param runTime The time to run for
+     * @return A command to run the intake and launcher for the given amount of time
+     */
+    public Command shootWithDumbFeed(double launcherSpeed, double runTime) {
+        var intakeSubsystem = IntakeSubsystem.getInstance();
+
+        return Commands.run(() -> {
+                    intakeSubsystem.setPower(Constants.IntakeConstants.intakePower); // Runs the intake
+                    runLauncher(launcherSpeed); // and launcher,
+                }, intakeSubsystem, this)
+                .withTimeout(runTime) // until the given timeout,
+                .finallyDo(() -> { // finally stopping the intake and shooter when everything is done
+                    intakeSubsystem.setPower(0.0);
+                    stopLauncher();
+                });
     }
 }
 
