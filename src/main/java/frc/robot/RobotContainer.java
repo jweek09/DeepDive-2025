@@ -18,6 +18,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -38,6 +39,7 @@ public class RobotContainer {
     private final ArmSubsystem armSubsystem = ArmSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
+    private final ClimberSubsystem climberSubsystem = ClimberSubsystem.getInstance();
     private double defaultLauncherSpeed = 0.5;
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -128,6 +130,14 @@ public class RobotContainer {
 
         driverController.a()
                 .onTrue(launcherSubsystem.shootWithSmartFeed(defaultLauncherSpeed));
+
+        climberSubsystem.setDefaultCommand(Commands.run(climberSubsystem::stopMotors, climberSubsystem));
+
+        driverController.pov(0)
+                .whileTrue(Commands.run(() -> climberSubsystem.runMotors(Constants.ClimberConstants.releaseSpeed)));
+
+        driverController.pov(180)
+                .whileTrue(Commands.run(() -> climberSubsystem.runMotors(Constants.ClimberConstants.climbSpeed)));
     }
     
     
