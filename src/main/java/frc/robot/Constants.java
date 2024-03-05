@@ -282,7 +282,7 @@ public final class Constants {
         public static final double armFreeSpeed = neoFreeSpeedRPM * velocityFactor;
 
         public static final ArmFeedforward armFeedforward =
-                new ArmFeedforward(0.0, 0.47, 12.0 / armFreeSpeed, 0.0);
+                new ArmFeedforward(0.0, 0.57, 12.0 / armFreeSpeed, 0.05);
         public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
         public static final TrapezoidProfile.Constraints armMotionConstraint =
                 new TrapezoidProfile.Constraints(2.0, 2.0);
