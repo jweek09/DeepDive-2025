@@ -10,15 +10,21 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -54,13 +60,17 @@ public class RobotContainer {
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
     private final ClimberSubsystem climberSubsystem = ClimberSubsystem.getInstance();
+    
     private DoubleSupplier defaultLauncherSpeed;
     private final BooleanSupplier isRedAlliance = () ->
-            DriverStation.getAlliance().filter(value -> value == DriverStation.Alliance.Red).isPresent();
+            DriverStation.getAlliance().filter(value -> value == Alliance.Red).isPresent();
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController driverController =
             new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+
+        private final CommandXboxController operatorController = 
+                new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autonomousCommand;
 
@@ -78,7 +88,7 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-        var underStageArmConstraints = new ArrayList<Pair<Rotation2d, Rotation2d>>(1);
+       /*  var underStageArmConstraints = new ArrayList<Pair<Rotation2d, Rotation2d>>(1);
         underStageArmConstraints.add(
                 Pair.of(Rotation2d.fromRadians(0), Rotation2d.fromRadians(Constants.ArmConstants.underStageLimit)));
 
@@ -93,7 +103,7 @@ public class RobotContainer {
                             .and(() -> driveSubsystem.getPose().getTranslation().getDistance(Constants.FieldConstants.redStageCenter)
                                 > Constants.FieldConstants.stageDangerRadius)
             ), armSubsystem));
-
+ */
         SmartDashboard.putData(driveSubsystem);
         SmartDashboard.putData(armSubsystem);
         SmartDashboard.putData(intakeSubsystem);
@@ -101,15 +111,16 @@ public class RobotContainer {
     }
 
     private void registerAutonomousCommands() {
-        NamedCommands.registerCommand("ShootCommand",
-                new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance));
+        NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance));
         NamedCommands.registerCommand("IntakeNoteCommand", new IntakeNoteCommand());
+        NamedCommands.registerCommand("ShootSubwoofer", new ShootCommand(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle(),0.5));
     }
 
     /**
      * Configures the Shuffleboard
      */
     private void configureDashboard() {
+        /* 
         var shootTuningTab = Shuffleboard.getTab("Shooting Position Tuning");
 
         GenericEntry shootTuningIsRedAlliance = shootTuningTab.add("On Red Alliance Side",
@@ -141,7 +152,7 @@ public class RobotContainer {
                 String.format("Arm Angle: %.4f", armSubsystem.getEncoderPosition()) + "\n---\n" +
                 String.format("Shooter Speed: %.2f", defaultLauncherSpeed.getAsDouble())
         ).withPosition(3, 0).withSize(3, 3);
-
+ */
         var autonomousTab = Shuffleboard.getTab("Autonomous");
 
         autonomousTab.add("Autonomous Command", autonomousCommand);
@@ -150,7 +161,7 @@ public class RobotContainer {
     
     /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
-     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+     * {@link Trigger#Trigger(BooleanSupplier)} constructor with an arbitrary
      * predicate, or via the named factories in {@link
      * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
      * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
@@ -162,6 +173,9 @@ public class RobotContainer {
         new Trigger(exampleSubsystem::exampleCondition)
                 .onTrue(new ExampleCommand(exampleSubsystem));
         
+               //  new Trigger(Constants)
+               // .onTrue(new shootingPositions.stageShot(Constants));
+        
         // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
         // cancelling on release.
         // driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
@@ -170,7 +184,7 @@ public class RobotContainer {
 
         var alliance = DriverStation.getAlliance();
         double invertFieldOrientedControls =
-                (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) // Invert field-oriented controls if on red alliance
+                (alliance.isPresent() && alliance.get() == Alliance.Red) // Invert field-oriented controls if on red alliance
                         ? -1 : 1; // Multiply by -1 if true (flip controls)
 
         driveSubsystem.setDefaultCommand(new SwerveControllerDriveCommand(
@@ -186,10 +200,10 @@ public class RobotContainer {
         armSubsystem.setDefaultCommand(new RunCommand(armSubsystem::runAutomatic, armSubsystem));
 
         new Trigger(() ->
-                Math.abs(driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis()) > OperatorConstants.armManualDeadband
+                Math.abs(operatorController.getRightTriggerAxis() - operatorController.getLeftTriggerAxis()) > OperatorConstants.armManualDeadband
         ).whileTrue(new RunCommand(
                 () ->
-                        armSubsystem.runManual((driverController.getRightTriggerAxis() - driverController.getLeftTriggerAxis()) * OperatorConstants.armManualScale)
+                        armSubsystem.runManual((operatorController.getRightTriggerAxis() - operatorController.getLeftTriggerAxis()) * OperatorConstants.armManualScale)
                 , armSubsystem));
 
         // set the intake to stop (0 power) when no other command is running
@@ -209,11 +223,17 @@ public class RobotContainer {
         launcherSubsystem.setDefaultCommand(new RunCommand(launcherSubsystem::stopLauncher, launcherSubsystem));
 
         // launcher controls (button to pre-spin the launcher and button to launch)
+        //driverController.rightBumper() 
+        //        .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(defaultLauncherSpeed.getAsDouble()), launcherSubsystem));
+
         driverController.rightBumper()
-                .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(defaultLauncherSpeed.getAsDouble()), launcherSubsystem));
+                .whileTrue(new RunCommand(() -> launcherSubsystem.runLauncher(0.5), launcherSubsystem));
+
+     //   driverController.a()
+       //         .onTrue(launcherSubsystem.shootWithSmartFeed(defaultLauncherSpeed.getAsDouble()));
 
         driverController.a()
-                .onTrue(launcherSubsystem.shootWithSmartFeed(defaultLauncherSpeed.getAsDouble()));
+                .onTrue(launcherSubsystem.shootWithSmartFeed(0.5));
 
         climberSubsystem.setDefaultCommand(Commands.run(climberSubsystem::stopMotors, climberSubsystem));
 
@@ -222,6 +242,16 @@ public class RobotContainer {
 
         driverController.pov(180)
                 .whileTrue(Commands.run(() -> climberSubsystem.runMotors(Constants.ClimberConstants.climbSpeed)));
+
+                driverController.start().or(driverController.back()).onTrue(Commands.runOnce(() -> {
+                        driveSubsystem.resetOdometry(new Pose2d());
+                }));
+
+        operatorController.y().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.farStageShot.getArmAngle())));
+        operatorController.b().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.ampScore.getArmAngle())));
+        operatorController.x().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle())));
+        operatorController.rightBumper().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.theSource.getArmAngle())));
+        operatorController.leftBumper().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(-0.02)));
     }
     
     
@@ -231,7 +261,26 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        // An example command will be run in autonomous
-        return autonomousCommand.getSelected();
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                        driveSubsystem.resetOdometry(new Pose2d(new Translation2d(),
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Blue) ? Rotation2d.fromDegrees(60.0) : Rotation2d.fromDegrees(-60.0)));
+                }),
+               Commands.runOnce(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle())),
+               new RunCommand(() -> launcherSubsystem.runLauncher(0.5), launcherSubsystem)
+               .raceWith(Commands.waitSeconds(5.0)
+               .andThen(intakeSubsystem.runUntilPickup(Constants.IntakeConstants.intakePower).withTimeout(3.0))),
+               Commands.waitSeconds(4.0),
+               Commands.either(
+                driveSubsystem.run(() -> {
+                        driveSubsystem.driveRobotRelative(new ChassisSpeeds(0.85, -0.95, 0.0));
+                }),
+                driveSubsystem.run(() -> {
+                        driveSubsystem.driveRobotRelative(new ChassisSpeeds(0.85, 0.95, 0.0));
+                }),
+                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Blue)
+               )
+
+        );
     }
 }

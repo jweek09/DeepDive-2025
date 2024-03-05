@@ -30,6 +30,8 @@ import java.util.NoSuchElementException;
 public final class Constants {
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int OPERATOR_CONTROLLER_PORT = 1;
+        
 
         public static final double leftXDeadband = 0.01;
         public static final double leftYDeadband = 0.01;
@@ -102,13 +104,27 @@ public final class Constants {
                             Rotation2d.fromDegrees(-90)),
                             1.38, 0.4);
             public static final ShootingPosition inFrontOfSpeaker =
-                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), .198, 0.5);
+                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.3, 0.5);
+ 
+              public static final ShootingPosition stageShot =
+                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.5, 0.5);
+
+            public static final ShootingPosition farStageShot =
+                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.57, 0.5);
+
+            public static final ShootingPosition theSource  =
+                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 1.0548 , 0.5);
+
 
             /** An array of all valid {@link ShootingPosition}s to score on the speaker */
             public static final ShootingPosition[] validSpeakerShootingPositions
                     = new ShootingPosition[] { // All valid positions for scoring in the Speaker should be added here
-                    inFrontOfSpeaker
-            };
+                    inFrontOfSpeaker,
+                    stageShot,
+	       	        farStageShot,
+                    theSource,
+		            ampScore
+		};
 
             /**
              * Finds the nearest {@link ShootingPosition ShootingPosition} from the array of
@@ -221,7 +237,7 @@ public final class Constants {
                 new Translation2d(-PhysicalConstants.wheelBase / 2, -PhysicalConstants.trackWidth / 2));
 
         public static class TeleopConstants {
-            public static final double teleDriveMaxSpeedMetersPerSecond = PhysicalConstants.physicalMaxSpeedMetersPerSecond;
+            public static final double teleDriveMaxSpeedMetersPerSecond = PhysicalConstants.physicalMaxSpeedMetersPerSecond / 1.5;
             public static final double teleDriveMaxAngularSpeedRadiansPerSecond = //
                     PhysicalConstants.physicalMaxAngularSpeedRadiansPerSecond / 4;
             public static final double teleDriveMaxAccelerationUnitsPerSecond = 3;
@@ -338,12 +354,12 @@ public final class Constants {
                                                 0.5; // Change this number instead
 
         /** The time taken by the climber in seconds,
-         * running at the given {@link frc.robot.Constants.ClimberConstants#releaseSpeed releaseSpeed},
+         * running at the given {@link ClimberConstants#releaseSpeed releaseSpeed},
          * to reach its highest point.
          */
         public static final double releaseToTopTimeSeconds = 0.0;
         /** The time taken by the climber in seconds,
-         * running at the given {@link frc.robot.Constants.ClimberConstants#climbSpeed climbSpeed},
+         * running at the given {@link ClimberConstants#climbSpeed climbSpeed},
          * to retract from hits highest point to the bottom.
          */
         public static final double retractFullyDownTimeSeconds = 0.0;

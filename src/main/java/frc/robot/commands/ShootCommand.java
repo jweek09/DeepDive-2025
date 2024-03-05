@@ -40,7 +40,7 @@ public class ShootCommand extends SequentialCommandGroup {
     /**
      * Constructs a new command to shoot a piece, moving the arm to the correct position
      * and optionally pathfinding to the correct position on the field, mirrored if on red alliance
-     * @param shootingPosition The {@link frc.robot.Constants.PositionConstants.ShootingPositions.ShootingPosition}
+     * @param shootingPosition The {@link Constants.PositionConstants.ShootingPositions.ShootingPosition}
      *                         configuration for the position
      * @param moveToPosition A {@link BooleanSupplier} for whether to move the robot before shooting.
      *                       If this returns false, the robot will not move
@@ -60,8 +60,8 @@ public class ShootCommand extends SequentialCommandGroup {
 
     /**
      * Constructs a new command to shoot a piece, moving the arm, running the shooter, and optionally moving the robot
-     * to the closest given point in {@link frc.robot.Constants.PositionConstants.ShootingPositions#validSpeakerShootingPositions}
-     * using the {@link frc.robot.Constants.PositionConstants.ShootingPositions#getNearestPosition(Translation2d, boolean)}
+     * to the closest given point in {@link Constants.PositionConstants.ShootingPositions#validSpeakerShootingPositions}
+     * using the {@link Constants.PositionConstants.ShootingPositions#getNearestPosition(Translation2d, boolean)}
      * function.
      *
      * @param currentRobotPosition A supplier for the robot's translation on the field

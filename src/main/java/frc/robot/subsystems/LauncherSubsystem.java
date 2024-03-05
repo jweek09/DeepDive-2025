@@ -117,7 +117,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
     /**
      * A command that shoots the launcher, running until the breakbeam in the {@link IntakeSubsystem} is cleared
-     * with a small delay to let it clear defined by {@link frc.robot.Constants.IntakeConstants#clearLauncherTime}
+     * with a small delay to let it clear defined by {@link Constants.IntakeConstants#clearLauncherTime}
      * @param launcherSpeed The speed at which to run the shooter
      * @return A command to run the intake and launcher until the note clears the breakbeam
      */
