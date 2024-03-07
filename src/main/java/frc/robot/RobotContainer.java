@@ -80,7 +80,7 @@ public class RobotContainer {
 
         registerAutonomousCommands();
 
-        autonomousCommand = AutoBuilder.buildAutoChooser("");
+        autonomousCommand = AutoBuilder.buildAutoChooser("Do Nothing In Front Of Speaker");
 
         configureDashboard();
 
@@ -245,26 +245,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                        driveSubsystem.resetOdometry(new Pose2d(new Translation2d(),
-                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Blue) ? Rotation2d.fromDegrees(60.0) : Rotation2d.fromDegrees(-60.0)));
-                }),
-               Commands.runOnce(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle())),
-               new RunCommand(() -> launcherSubsystem.runLauncher(0.5), launcherSubsystem)
-               .raceWith(Commands.waitSeconds(5.0)
-               .andThen(intakeSubsystem.runUntilPickup(Constants.IntakeConstants.intakePower).withTimeout(3.0))),
-               Commands.waitSeconds(4.0),
-               Commands.either(
-                driveSubsystem.run(() -> {
-                        driveSubsystem.driveRobotRelative(new ChassisSpeeds(0.85, -0.95, 0.0));
-                }),
-                driveSubsystem.run(() -> {
-                        driveSubsystem.driveRobotRelative(new ChassisSpeeds(0.85, 0.95, 0.0));
-                }),
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Blue)
-               )
-
-        );
+        return autonomousCommand.getSelected();
     }
 }
