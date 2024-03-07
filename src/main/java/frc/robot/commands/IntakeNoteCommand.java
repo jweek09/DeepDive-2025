@@ -10,7 +10,7 @@ public class IntakeNoteCommand extends SequentialCommandGroup {
      * Moves the arm to the intake position, then runs the intake until it picks up a note
      */
     public IntakeNoteCommand() {
-        super(ArmSubsystem.getInstance().GoToAngleCommand(Constants.ArmConstants.frontLimit),
+        super(ArmSubsystem.getInstance().GoToIntakePositionCommand(),
                 IntakeSubsystem.getInstance().runUntilPickup(Constants.IntakeConstants.intakePower));
     }
 }
