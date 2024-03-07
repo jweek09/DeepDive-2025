@@ -204,6 +204,10 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
+    public boolean isAtTargetPosition() {
+        return MathUtil.isNear(setpoint, getEncoderPosition(), ArmConstants.atTargetThreshold);
+    }
+
     /**Update the motion profile variables based on the current setpoint and the pre-configured motion constraints.*/
     private void updateMotionProfile() {
         startState = new TrapezoidProfile.State(getEncoderPosition(),
@@ -273,8 +277,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public Command GoToAngleCommand(double angle) {
-        return Commands.runOnce(() -> setTargetPosition(angle), this).andThen( // Will set the target position
-                Commands.waitUntil(() -> profile.isFinished(timer.get()))); // and then wait for the arm to get there
+        return Commands.runOnce(() -> setTargetPosition(angle)).andThen( // Will set the target position
+                Commands.run(this::runAutomatic).until(this::isAtTargetPosition)); // and then wait for the arm to get there
     }
 }
 

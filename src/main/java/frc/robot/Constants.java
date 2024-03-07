@@ -286,6 +286,8 @@ public final class Constants {
         public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
         public static final TrapezoidProfile.Constraints armMotionConstraint =
                 new TrapezoidProfile.Constraints(2.0, 2.0);
+        public static final double intakePosition = 0.0;
+        public static double atTargetThreshold = 0.05;
     }
 
     public static class IntakeConstants {
