@@ -2,24 +2,30 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4,
-      "y": 5.499225218130496
+      "x": 0.8,
+      "y": 4.2
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "ShootSubwooferCommand"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "center_leave"
+            "pathName": "source_side_leave"
           }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "Shoot And Leave",
   "choreoAuto": false
 }
