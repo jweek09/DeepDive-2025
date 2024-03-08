@@ -320,6 +320,7 @@ public final class Constants {
         public static final boolean bottomMotorInverted = false;
 
         public static final int currentLimit = 80;
+        public static double shooterWarmupTime = 0.5;
     }
 
     public static class ClimberConstants {
