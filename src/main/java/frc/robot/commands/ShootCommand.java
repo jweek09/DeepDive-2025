@@ -20,7 +20,10 @@ public class ShootCommand extends SequentialCommandGroup {
      */
     public ShootCommand(double armAngle, double launcherSpeed) {
         super(ArmSubsystem.getInstance().GoToAngleCommand(armAngle),
-                LauncherSubsystem.getInstance().shootWithSmartFeed(launcherSpeed));
+                (Constants.PositionConstants.ShootingPositions.ShootingPosition.useSmartFeed) ?
+                        LauncherSubsystem.getInstance().shootWithSmartFeed(launcherSpeed) :
+                        LauncherSubsystem.getInstance().shootWithDumbFeed(launcherSpeed,
+                                Constants.PositionConstants.ShootingPositions.ShootingPosition.dumbFeedShotTime));
     }
 
     /**
@@ -55,6 +58,18 @@ public class ShootCommand extends SequentialCommandGroup {
                     GeometryUtil.flipFieldPose(shootingPosition.getPose()) : shootingPosition.getPose(), // flip pose
                     shootingPosition.getArmAngle(), shootingPosition.getLauncherSpeed()) :
                     new ShootCommand(shootingPosition.getArmAngle(), shootingPosition.getLauncherSpeed()));
+    }
+
+    /**
+     * Constructs a new command to shoot a piece, moving the arm to the correct position
+     * given a {@link frc.robot.Constants.PositionConstants.ShootingPositions.ShootingPosition}
+     * This is a simpler constructor than
+     * {@link ShootCommand#ShootCommand(Constants.PositionConstants.ShootingPositions.ShootingPosition, BooleanSupplier, BooleanSupplier)}
+     * that does not move the robot to the position of the position
+     * @param shootingPosition The {@link Constants.PositionConstants.ShootingPositions.ShootingPosition} configuration for the position
+     */
+    public ShootCommand(Constants.PositionConstants.ShootingPositions.ShootingPosition shootingPosition) {
+        this(shootingPosition, () -> false, () -> false);
     }
 
     /**
