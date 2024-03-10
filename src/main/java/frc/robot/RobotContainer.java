@@ -243,6 +243,7 @@ public class RobotContainer {
         operatorController.b().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.ampScore.getArmAngle())));
         operatorController.rightBumper().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.theSource.getArmAngle())));
         operatorController.leftBumper().onTrue(armSubsystem.GoToIntakePositionCommand());
+        operatorController.povUp().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(0.452)));
     }
     
     
