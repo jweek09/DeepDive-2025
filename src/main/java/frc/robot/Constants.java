@@ -291,6 +291,10 @@ public final class Constants {
                 new TrapezoidProfile.Constraints(2.0, 2.0);
         public static final double intakePosition = 0.0;
         public static double atTargetThreshold = 0.05;
+
+        /** The maximum time the {@link frc.robot.subsystems.ArmSubsystem#GoToAngleCommand(double)} command will take
+         * to go to a position. It will time out if it doesn't successfully*/
+        public static double maxGoToAngleTimeSeconds = 2.5;
     }
 
     public static class IntakeConstants {

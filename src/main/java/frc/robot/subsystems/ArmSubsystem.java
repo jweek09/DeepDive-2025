@@ -302,7 +302,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Command GoToAngleCommand(double angle) {
         return Commands.runOnce(() -> setTargetPosition(angle)).andThen( // Will set the target position
-                Commands.run(this::runAutomatic).until(this::isAtTargetPosition)); // and then wait for the arm to get there
+                Commands.run(this::runAutomatic).until(this::isAtTargetPosition).withTimeout(ArmConstants.maxGoToAngleTimeSeconds)); // and then wait for the arm to get there
     }
 
     public Command GoToIntakePositionCommand() {
