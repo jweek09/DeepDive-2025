@@ -3,9 +3,12 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Subwoofer Leave"
+    "Subwoofer Note Pickup",
+    "Subwoofer Leave",
+    "Subwoofer Note Return"
   ],
   "autoFolders": [
+    "Pickup And Shoot",
     "Shoot And Leave"
   ],
   "defaultMaxVel": 3.0,
