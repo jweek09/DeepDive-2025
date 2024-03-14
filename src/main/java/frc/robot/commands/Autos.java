@@ -22,7 +22,7 @@ public final class Autos {
 
     public static Command pickupCommand(IntakeSubsystem intakeSubsystem, LauncherSubsystem launcherSubsystem) {
         return Commands.run(() -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem).withTimeout(1.5)
-                .andThen(Commands.run(() -> intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower))
+                .andThen(Commands.run(() -> intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower * 0.85))
                         .alongWith(Commands.run(() -> launcherSubsystem.runLauncher(-0.1))).withTimeout(0.15))
                 .finallyDo(() -> {
                     intakeSubsystem.setPower(0);
