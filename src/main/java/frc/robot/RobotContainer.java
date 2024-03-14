@@ -63,8 +63,10 @@ public class RobotContainer {
     private final CommandXboxController driverController =
             new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
-        private final CommandXboxController operatorController = 
-                new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+    private boolean teleopDriveSpeedReduced = false;
+
+    private final CommandXboxController operatorController =
+            new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autonomousCommand;
     private GenericEntry autonomousDelayTime;
@@ -190,11 +192,18 @@ public class RobotContainer {
         climberSubsystem.setDefaultCommand(Commands.run(climberSubsystem::stopMotors, climberSubsystem));
 
         driveSubsystem.setDefaultCommand(new SwerveControllerDriveCommand(
-                () -> (invertDriverControls.getAsBoolean() ? -1 : 1) * -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
-                () -> (invertDriverControls.getAsBoolean() ? -1 : 1) * -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
+                () -> (invertDriverControls.getAsBoolean() ? -1 : 1)
+                        * (teleopDriveSpeedReduced ? 0.33 : 1)
+                        * -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
+                () -> (invertDriverControls.getAsBoolean() ? -1 : 1)
+                        * (teleopDriveSpeedReduced ? 0.33 : 1)
+                        * -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
                 () -> -driverController.getRightX(),
                 () -> !driverController.getHID().getYButton() // Switch to robot oriented when Y is held
         ));
+
+        driverController.x().onTrue(new InstantCommand(() -> teleopDriveSpeedReduced = true));
+        driverController.a().onTrue(new InstantCommand(() -> teleopDriveSpeedReduced = false));
 
         driverController.leftBumper()
                 .onTrue(Commands.run(() -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem));
