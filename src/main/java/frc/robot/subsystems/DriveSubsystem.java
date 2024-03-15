@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.LimelightHelpers;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
@@ -70,7 +70,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+    private final SwerveDriveOdometry poseEstimator = new SwerveDriveOdometry(
             SwerveConstants.swerveDriveKinematics,
             new Rotation2d(0),
             new SwerveModulePosition[] {
@@ -78,8 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
                     frontRight.getPosition(),
                     backLeft.getPosition(),
                     backRight.getPosition()
-            },
-            new Pose2d(0,0, new Rotation2d(0)));
+            });
 
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
@@ -221,7 +220,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+        return poseEstimator.getPoseMeters();
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -232,60 +231,16 @@ public class DriveSubsystem extends SubsystemBase {
                         backLeft.getPosition(),
                         backRight.getPosition()
                 }, pose);
-        field.setRobotPose(poseEstimator.getEstimatedPosition());
+        field.setRobotPose(poseEstimator.getPoseMeters());
     }
 
     public void resetWheelEncoders() {
-        var pose = poseEstimator.getEstimatedPosition(); // Save it so the pose isn't reset
+        var pose = poseEstimator.getPoseMeters(); // Save it so the pose isn't reset
         frontLeft.resetEncoders();
         frontRight.resetEncoders();
         backLeft.resetEncoders();
         backRight.resetEncoders();
         resetOdometry(pose);
-    }
-
-    // Based on https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization#using-wpilibs-pose-estimator
-    /** Updates the {@link DriveSubsystem#poseEstimator pose estimator} with vision measurements from the Limelight */
-    public void updatePoseEstimatorWithVisionBotPose() {
-        // 1: Get data from the limelight
-        LimelightHelpers.LimelightResults limelightResults = LimelightHelpers.getLatestResults("");
-
-        // 2: Get bot pose
-        var botPose = limelightResults.targetingResults.getBotPose2d_wpiBlue();
-
-        if (botPose.getX() == 0) {
-            return;
-        }
-
-        double poseDifference = poseEstimator.getEstimatedPosition().getTranslation().getDistance(botPose.getTranslation());
-
-        // 3: Analyze the markers used
-        LimelightHelpers.LimelightTarget_Fiducial[] targets =
-                Arrays.stream(limelightResults.targetingResults.targets_Fiducials).filter((LimelightHelpers.LimelightTarget_Fiducial tag) ->
-                        tag.fiducialFamily.equals("36H11C") // Checks correct family
-                                && tag.fiducialID <= 16) // Checks actually in use this year (IDs 1-16 are used in 2024)
-                        .toArray(LimelightHelpers.LimelightTarget_Fiducial[]::new);
-
-        if (targets.length > 0) { // There are valid targets found
-            double xyStds;
-            double degStds;
-
-            if (targets.length >= 2) { // Multiple targets, high accuracy
-                xyStds = 0.5;
-                degStds = 6;
-            } else if (targets[0].ta > 0.8 && poseDifference < 0.5) { // Large relative to camera frame, close to current pose
-                xyStds = 1.0;
-                degStds = 12;
-            } else if (targets[0].ta > 0.1 && poseDifference < 0.3) { // Farther, but estimate is close
-                xyStds = 2.0;
-                degStds = 30;
-            } else { return; } // Conditions don't match to add measurement
-
-            // 4: Add vision measurement to pose estimator
-            poseEstimator.addVisionMeasurement(botPose,
-                    (limelightResults.targetingResults.timestamp_LIMELIGHT_publish / 1000.0), // Limelight is in milliseconds
-                    VecBuilder.fill(xyStds, xyStds, Units.degreesToRadians(degStds)));
-        }
     }
 
     @Override
@@ -298,13 +253,7 @@ public class DriveSubsystem extends SubsystemBase {
                         backRight.getPosition()
                 });
 
-        try {
-            updatePoseEstimatorWithVisionBotPose();
-        } catch (Exception e) {
-            System.err.println("Something went wrong while getting a pose estimation from the Limelight: " + e);
-        }
-
-        field.setRobotPose(poseEstimator.getEstimatedPosition());
+        field.setRobotPose(poseEstimator.getPoseMeters());
     }
 
     public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
