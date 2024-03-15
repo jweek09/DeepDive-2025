@@ -39,6 +39,8 @@ public class ArmSubsystem extends SubsystemBase {
     private double feedforward;
     private double manualValue;
 
+    private boolean armAutomaticHoldEnabled = true;
+
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -169,6 +171,15 @@ public class ArmSubsystem extends SubsystemBase {
         rightMotor.setIdleMode(IdleMode.kCoast);
     }
 
+    /**
+     * Disables the automatic arm hold. Subsequent calls to {@link ArmSubsystem#runAutomatic} will not move the arm.
+     * Any input to {@link ArmSubsystem#runManual} or {@link ArmSubsystem#setTargetPosition} will disable this and still move the arm.
+     */
+    public void disableArmAutomaticHold() {
+        System.out.println("Disabling automatic hold.");
+        armAutomaticHoldEnabled = false;
+    }
+
     public void resetEncodersBasedOnLimitSwitches() {
         if (frontLimitSwitch.get()) {
             resetEncoders(ArmConstants.frontLimit);
@@ -198,6 +209,8 @@ public class ArmSubsystem extends SubsystemBase {
      * @param _setpoint The new target position in radians.
      */
     public void setTargetPosition(double _setpoint) {
+        armAutomaticHoldEnabled = true;
+
         if (_setpoint != setpoint) {
             setpoint = MathUtil.clamp(_setpoint, ArmConstants.frontLimit, ArmConstants.backLimit);
             updateMotionProfile();
@@ -223,6 +236,7 @@ public class ArmSubsystem extends SubsystemBase {
      * <p>
      * This function updates the motor position control loop using a setpoint from the trapezoidal motion profile.
      * The target position is the last set position with {@code setTargetPosition}.
+     * This will not run if the automatic hold is disabled using {@link ArmSubsystem#disableArmAutomaticHold()}.
      */
     public void runAutomatic() {
         var prevTargetRotation = targetState.position;
@@ -236,6 +250,14 @@ public class ArmSubsystem extends SubsystemBase {
         feedforward =
                 ArmConstants.armFeedforward.calculate(
                         getEncoderPosition(), targetState.velocity);
+
+        if (!armAutomaticHoldEnabled) {
+            System.out.println("Not running automatic because automatic hold is disabled.");
+            leftMotor.set(0.0);
+            rightMotor.set(0.0);
+            return;
+        }
+
         if (!(frontLimitSwitch.get() && targetState.position < prevTargetRotation) // If either limit switch is hit
                 && !(backLimitSwitch.get() && targetState.position > prevTargetRotation) // but we aren't trying to
         ) {                                                                             // move toward it
@@ -254,6 +276,8 @@ public class ArmSubsystem extends SubsystemBase {
      * @param _power The motor power to apply.
      */
     public void runManual(double _power) {
+        armAutomaticHoldEnabled = true;
+
         // reset and zero out a bunch of automatic mode stuff so exiting manual mode happens cleanly and
         // passively
         setTargetPosition(getEncoderPosition());
@@ -279,6 +303,11 @@ public class ArmSubsystem extends SubsystemBase {
     public Command GoToAngleCommand(double angle) {
         return Commands.runOnce(() -> setTargetPosition(angle)).andThen( // Will set the target position
                 Commands.run(this::runAutomatic).until(this::isAtTargetPosition)); // and then wait for the arm to get there
+    }
+
+    public Command GoToIntakePositionCommand() {
+        return GoToAngleCommand(ArmConstants.intakePosition)
+                .andThen(Commands.runOnce(this::disableArmAutomaticHold)); // Disables the automatic hold
     }
 }
 
