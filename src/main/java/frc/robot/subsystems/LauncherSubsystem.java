@@ -124,14 +124,18 @@ public class LauncherSubsystem extends SubsystemBase {
     public Command shootWithSmartFeed(double launcherSpeed) {
         var intakeSubsystem = IntakeSubsystem.getInstance();
 
-        return Commands.run(() -> {
-                    intakeSubsystem.setPower(Constants.IntakeConstants.intakePower); // Runs the intake
-                    runLauncher(launcherSpeed); // and launcher,
-                }, intakeSubsystem, this)
-                .raceWith( // stopping it when the breakbeam is no longer broken
-                        Commands.waitUntil(intakeSubsystem.getBreakbeamBrokenTrigger().negate())
-                                .withTimeout(3) // or it times out,
-                                .andThen(Commands.waitSeconds(Constants.IntakeConstants.clearLauncherTime)) // then waiting 0.2 seconds to let it clear the launcher,
+        return Commands.run(() -> runLauncher(launcherSpeed), this) // Runs the launcher
+                .raceWith(
+                        Commands.waitSeconds(Constants.LauncherConstants.shooterWarmupTime) // and waits for it to warm up
+                            .andThen(
+                                Commands.run(
+                                        () -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem)
+                                    .raceWith( // stopping it when the breakbeam is no longer broken
+                                        Commands.waitUntil(intakeSubsystem.getBreakbeamBrokenTrigger().negate())
+                                            .withTimeout(3) // or it times out,
+                                            .andThen(Commands.waitSeconds(Constants.IntakeConstants.clearLauncherTime)) // then waiting 0.2 seconds to let it clear the launcher,
+                                    )
+                            )
                 ).finallyDo(() -> { // finally stopping the intake and shooter when everything is done
                     intakeSubsystem.setPower(0.0);
                     stopLauncher();
@@ -148,12 +152,15 @@ public class LauncherSubsystem extends SubsystemBase {
     public Command shootWithDumbFeed(double launcherSpeed, double runTime) {
         var intakeSubsystem = IntakeSubsystem.getInstance();
 
-        return Commands.run(() -> {
-                    intakeSubsystem.setPower(Constants.IntakeConstants.intakePower); // Runs the intake
-                    runLauncher(launcherSpeed); // and launcher,
-                }, intakeSubsystem, this)
-                .withTimeout(runTime) // until the given timeout,
-                .finallyDo(() -> { // finally stopping the intake and shooter when everything is done
+        return Commands.run(() -> runLauncher(launcherSpeed), this) // Runs the launcher
+                .raceWith(
+                        Commands.waitSeconds(Constants.LauncherConstants.shooterWarmupTime) // and waits for it to warm up
+                        .andThen(
+                                Commands.run(
+                                        () -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem)
+                                .withTimeout(runTime) // until the given timeout,
+                        )
+                ).finallyDo(() -> { // finally stopping the intake and shooter when everything is done
                     intakeSubsystem.setPower(0.0);
                     stopLauncher();
                 });
