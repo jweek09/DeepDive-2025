@@ -3,7 +3,7 @@
   "startingPose": {
     "position": {
       "x": 1.4,
-      "y": 5.499225218130496
+      "y": 5.5
     },
     "rotation": 0
   },
@@ -11,6 +11,12 @@
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootSubwooferCommand"
+          }
+        },
         {
           "type": "path",
           "data": {
@@ -20,6 +26,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Shoot And Leave",
   "choreoAuto": false
 }
