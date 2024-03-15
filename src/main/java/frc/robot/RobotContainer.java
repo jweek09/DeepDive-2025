@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeNoteCommand;
 import frc.robot.commands.ShootCommand;
@@ -90,9 +91,12 @@ public class RobotContainer {
     }
 
     private void registerAutonomousCommands() {
-        NamedCommands.registerCommand("IntakeNoteCommand", new IntakeNoteCommand());
         NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance)
                 .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
+        NamedCommands.registerCommand("IntakeArmPositionCommand", armSubsystem.GoToIntakePositionCommand());
+        NamedCommands.registerCommand("IntakeNoteCommand", Autos.pickupCommand(intakeSubsystem, launcherSubsystem));
+        NamedCommands.registerCommand("ShootSubwooferNoSafetyMoveCommand",
+                new ShootCommand(0.22, 0.5));
         NamedCommands.registerCommand("ShootSubwooferCommand",
                 new ShootCommand(0.22, 0.5)
                         .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));

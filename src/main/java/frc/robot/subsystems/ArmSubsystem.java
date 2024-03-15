@@ -307,6 +307,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Command GoToIntakePositionCommand() {
         return GoToAngleCommand(ArmConstants.intakePosition)
+                .andThen(Commands.run(() -> runManual(-0.7)).withTimeout(0.2))
                 .andThen(Commands.runOnce(this::disableArmAutomaticHold)); // Disables the automatic hold
     }
 }
