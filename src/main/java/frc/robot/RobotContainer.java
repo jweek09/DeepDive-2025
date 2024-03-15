@@ -7,18 +7,11 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -72,6 +65,7 @@ public class RobotContainer {
                 new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autonomousCommand;
+    private GenericEntry autonomousDelayTime;
 
     private double temporaryArmRotation = armSubsystem.getEncoderPosition();
 
@@ -142,7 +136,13 @@ public class RobotContainer {
  */
         var autonomousTab = Shuffleboard.getTab("Autonomous");
 
-        autonomousTab.add("Autonomous Command", autonomousCommand);
+        autonomousTab.add("Autonomous Command", autonomousCommand)
+                .withPosition(0,0)
+                .withSize(3, 1);
+        autonomousDelayTime = autonomousTab.add("Autonomous Delay Time", 0.0)
+                .withPosition(0, 1)
+                .withSize(3, 1)
+                .getEntry(); // This creates an entry that we can read the NetworkTable for
     }
     
     
@@ -248,6 +248,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autonomousCommand.getSelected();
+        return Commands.waitSeconds(MathUtil.clamp(autonomousDelayTime.getDouble(0.0), 0, 15))
+                .andThen(autonomousCommand.getSelected());
     }
 }
