@@ -21,7 +21,6 @@ public class ShootCommand extends SequentialCommandGroup {
     public ShootCommand(double armAngle, double launcherSpeed) {
         super(ArmSubsystem.getInstance().GoToAngleCommand(armAngle),
                 LauncherSubsystem.getInstance().shootWithSmartFeed(launcherSpeed));
-        addRequirements(ArmSubsystem.getInstance(), LauncherSubsystem.getInstance());
     }
 
     /**

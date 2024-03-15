@@ -12,6 +12,5 @@ public class IntakeNoteCommand extends SequentialCommandGroup {
     public IntakeNoteCommand() {
         super(ArmSubsystem.getInstance().GoToAngleCommand(Constants.ArmConstants.frontLimit),
                 IntakeSubsystem.getInstance().runUntilPickup(Constants.IntakeConstants.intakePower));
-        addRequirements(ArmSubsystem.getInstance(), IntakeSubsystem.getInstance());
     }
 }
