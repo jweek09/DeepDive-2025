@@ -223,7 +223,7 @@ public final class Constants {
                 new Translation2d(-PhysicalConstants.wheelBase / 2, -PhysicalConstants.trackWidth / 2));
 
         public static class TeleopConstants {
-            public static final double teleDriveMaxSpeedMetersPerSecond = PhysicalConstants.physicalMaxSpeedMetersPerSecond / 1.5;
+            public static final double teleDriveMaxSpeedMetersPerSecond = PhysicalConstants.physicalMaxSpeedMetersPerSecond / 1.1;
             public static final double teleDriveMaxAngularSpeedRadiansPerSecond = //
                     PhysicalConstants.physicalMaxAngularSpeedRadiansPerSecond / 4;
             public static final double teleDriveMaxAccelerationUnitsPerSecond = 3;
