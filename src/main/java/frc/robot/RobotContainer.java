@@ -97,7 +97,10 @@ public class RobotContainer {
     private void registerAutonomousCommands() {
         NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance));
         NamedCommands.registerCommand("IntakeNoteCommand", new IntakeNoteCommand());
-        NamedCommands.registerCommand("ShootSubwoofer", new ShootCommand(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle(),0.5));
+        NamedCommands.registerCommand("ShootSubwooferCommand",
+                new ShootCommand(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker));
+        NamedCommands.registerCommand("ShootNearStageCommand",
+                new ShootCommand(Constants.PositionConstants.ShootingPositions.stageShot));
     }
 
     /**

@@ -44,6 +44,9 @@ public final class Constants {
     public static class PositionConstants {
         public static class ShootingPositions {
             public static class ShootingPosition {
+                public static final boolean useSmartFeed = false;
+                public static final double dumbFeedShotTime = 1;
+
                 Pose2d pose;
                 double armAngle;
                 double launcherSpeed;
