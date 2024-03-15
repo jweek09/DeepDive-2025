@@ -40,7 +40,6 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 
-import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -88,22 +87,7 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-       /*  var underStageArmConstraints = new ArrayList<Pair<Rotation2d, Rotation2d>>(1);
-        underStageArmConstraints.add(
-                Pair.of(Rotation2d.fromRadians(0), Rotation2d.fromRadians(Constants.ArmConstants.underStageLimit)));
 
-        new Trigger(() -> driveSubsystem.getPose().getTranslation().getDistance(Constants.FieldConstants.blueStageCenter)
-                    < Constants.FieldConstants.stageDangerRadius)
-            .or(() -> driveSubsystem.getPose().getTranslation().getDistance(Constants.FieldConstants.redStageCenter)
-                    < Constants.FieldConstants.stageDangerRadius)
-            .onTrue(
-                Commands.runOnce(() -> armSubsystem.setArmRotationConstraints(underStageArmConstraints,
-                        new Trigger(() -> driveSubsystem.getPose().getTranslation().getDistance(Constants.FieldConstants.blueStageCenter)
-                                > Constants.FieldConstants.stageDangerRadius)
-                            .and(() -> driveSubsystem.getPose().getTranslation().getDistance(Constants.FieldConstants.redStageCenter)
-                                > Constants.FieldConstants.stageDangerRadius)
-            ), armSubsystem));
- */
         SmartDashboard.putData(driveSubsystem);
         SmartDashboard.putData(armSubsystem);
         SmartDashboard.putData(intakeSubsystem);

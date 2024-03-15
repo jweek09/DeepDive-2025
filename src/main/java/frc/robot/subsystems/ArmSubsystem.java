@@ -7,8 +7,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,13 +14,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.PIDGains;
 import frc.robot.Constants.ArmConstants;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Optional;
 
 public class ArmSubsystem extends SubsystemBase {
     private final CANSparkMax leftMotor;
@@ -45,8 +38,6 @@ public class ArmSubsystem extends SubsystemBase {
     private TrapezoidProfile.State targetState;
     private double feedforward;
     private double manualValue;
-
-    private final ArrayList<Pair<Rotation2d, Rotation2d>> rotationConstraints = new ArrayList<>();
 
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
@@ -120,10 +111,6 @@ public class ArmSubsystem extends SubsystemBase {
         frontLimitSwitch = new DigitalInput(ArmConstants.frontLimitSwitchPort);
         backLimitSwitch = new DigitalInput(ArmConstants.backLimitSwitchPort);
 
-        rotationConstraints.add(Pair.of(
-                Rotation2d.fromRadians(ArmConstants.frontLimit), // Initializes the rotation constraints to the
-                Rotation2d.fromRadians(ArmConstants.backLimit))); // front and back limits from the constants file
-
         setpoint = 0.0; // At initialization, it will hold its position
 
         timer = new Timer();
@@ -151,9 +138,6 @@ public class ArmSubsystem extends SubsystemBase {
 
         builder.addBooleanProperty("Front Limit Switch Triggered", frontLimitSwitch::get, null);
         builder.addBooleanProperty("Back Limit Switch Triggered", backLimitSwitch::get, null);
-        builder.addStringArrayProperty("Motion Constraints", () -> rotationConstraints.stream().map(
-                (it) -> "From " + it.getFirst().getRadians() + " radians to " + it.getSecond().getRadians() + " radians."
-        ).toArray(String[]::new), null);
 
         builder.addBooleanProperty("Arm Hold Enabled",
                 () -> leftMotor.getIdleMode() == IdleMode.kBrake && rightMotor.getIdleMode() == IdleMode.kBrake,
@@ -185,29 +169,6 @@ public class ArmSubsystem extends SubsystemBase {
         rightMotor.setIdleMode(IdleMode.kCoast);
     }
 
-    public void setArmRotationConstraints(ArrayList<Pair<Rotation2d, Rotation2d>> constraints, Trigger endTrigger) {
-        if (constraints.stream().anyMatch((it) -> // Check conditions before setting
-                it.getFirst().getRadians() > it.getSecond().getRadians() || // Front constraint greater than back constraint
-            (it.getFirst().getRadians() < ArmConstants.frontLimit // Front constraint is beyond the front limit constant
-                    || it.getSecond().getRadians() > ArmConstants.backLimit))) { // Back constraint is beyond the back limit constant
-            System.err.println("Received invalid arm rotation constraints: " + constraints);
-            return;
-        }
-
-        rotationConstraints.clear();
-        rotationConstraints.addAll(constraints);
-
-        endTrigger.onTrue(Commands.runOnce(() -> {
-            rotationConstraints.clear();
-            rotationConstraints.add(Pair.of(
-                    Rotation2d.fromRadians(ArmConstants.frontLimit), // Sets the constraints back to the constant limits
-                    Rotation2d.fromRadians(ArmConstants.backLimit)) // When the trigger runs
-            );
-        }));
-
-        setTargetPosition(setpoint); // Adjusts the arm position to fit within the given constraints if needed
-    }
-
     public void resetEncodersBasedOnLimitSwitches() {
         if (frontLimitSwitch.get()) {
             resetEncoders(ArmConstants.frontLimit);
@@ -237,66 +198,10 @@ public class ArmSubsystem extends SubsystemBase {
      * @param _setpoint The new target position in radians.
      */
     public void setTargetPosition(double _setpoint) {
-        var adjustedSetpoint = constrainSetpoint(_setpoint, rotationConstraints);
-
-        if (adjustedSetpoint != setpoint) {
-            setpoint = adjustedSetpoint;
+        if (_setpoint != setpoint) {
+            setpoint = MathUtil.clamp(_setpoint, ArmConstants.frontLimit, ArmConstants.backLimit);
             updateMotionProfile();
         }
-    }
-
-    /**
-     * Constrains a given setpoint based on the rotationConstraints.
-     * If the setpoint isn't in a rotation constraint, it will be adjusted to the closest constraint
-     * @param _setpoint The setpoint, in radians, to confine. A setpoint directly between given upper and lower confines
-     *                 will round down.
-     * @param _rotationConstraints A list of constraints, where each constraint is represented by an {@link Pair}
-     *                            of {@link Rotation2d}s, where the first element in the {@link Pair} is the forward
-     *                             limit and the second element is the reverse limit. The forward limit should be less
-     *                             than the reverse limit.
-     * @return The setpoint if it falls within the given constraints, or the closest setpoint that falls within a
-     * rotation constraint
-     */
-    public static double constrainSetpoint(double _setpoint,
-                                            ArrayList<Pair<Rotation2d, Rotation2d>> _rotationConstraints) {
-        if (_rotationConstraints.stream().anyMatch(
-                (it) -> setpointIsWithin(_setpoint, it) // If the setpoint already fits within one of the constraints,
-        )) {
-            System.out.println("Setpoint falls within existing constraint");
-            return _setpoint; // Return the setpoint, because it's fine
-        }
-
-        double smallestAbsoluteDifference = Double.POSITIVE_INFINITY; // Needs to be big so it compares to less
-        double bestSetpoint = 0.0;
-
-        for (Pair<Rotation2d, Rotation2d> rotationLimit : _rotationConstraints) {
-            var clamped = MathUtil.clamp(_setpoint,
-                    rotationLimit.getFirst().getRadians(), rotationLimit.getSecond().getRadians());
-            if (Math.abs(_setpoint - clamped) < smallestAbsoluteDifference) {
-                smallestAbsoluteDifference = Math.abs(_setpoint - clamped);
-                bestSetpoint = clamped;
-            }
-        }
-        return bestSetpoint;
-    }
-
-    public static boolean setpointIsWithin(double _setpoint, Pair<Rotation2d, Rotation2d> rotationLimits) {
-        return _setpoint > rotationLimits.getFirst().getRadians()
-                && _setpoint < rotationLimits.getSecond().getRadians();
-    }
-
-    public static Pair<Rotation2d, Rotation2d> getRelevantRotationLimitsForSetpoint(
-            double _setpoint,
-            ArrayList<Pair<Rotation2d, Rotation2d>> _rotationConstraints) {
-        if (_rotationConstraints.isEmpty()) {
-            System.err.println("Somehow got an empty array to `getRelevantRotationLimitsForSetpoint`. This is not good.");
-            return Pair.of(Rotation2d.fromRadians(ArmConstants.frontLimit), Rotation2d.fromRadians(ArmConstants.backLimit));
-        }
-        Optional<Pair<Rotation2d, Rotation2d>> best = _rotationConstraints.stream()
-                .filter((it) -> setpointIsWithin(_setpoint, it)) // Filters those with the setpoint
-                .findFirst(); // And try to get the first
-        return best.orElse(
-                Pair.of(Rotation2d.fromRadians(ArmConstants.frontLimit), Rotation2d.fromRadians(ArmConstants.backLimit)));
     }
 
     /**Update the motion profile variables based on the current setpoint and the pre-configured motion constraints.*/
@@ -352,20 +257,12 @@ public class ArmSubsystem extends SubsystemBase {
         feedforward =
                 ArmConstants.armFeedforward.calculate(
                         getEncoderPosition(), targetState.velocity);
-
-        Pair<Rotation2d, Rotation2d> relevantRotationLimits = getRelevantRotationLimitsForSetpoint(setpoint,
-                rotationConstraints);
-
         if (!(frontLimitSwitch.get() && _power < 0)
                 && !(backLimitSwitch.get() && _power > 0)) {
-            if (!(
-                    (setpoint == relevantRotationLimits.getFirst().getRadians() && _power < 0)
-                    || (setpoint == relevantRotationLimits.getSecond().getRadians() && _power > 0)
-            )) {// set the power of the motor
-                leftMotor.set(_power + (feedforward / 12.0));
-                rightMotor.set(_power + (feedforward / 12.0));
-                manualValue = _power; // this variable is only used for logging or debugging if needed
-            }
+            // set the power of the motor
+            leftMotor.set(_power + (feedforward / 12.0));
+            rightMotor.set(_power + (feedforward / 12.0));
+            manualValue = _power; // this variable is only used for logging or debugging if needed
         } else {
             resetEncodersBasedOnLimitSwitches();
         }

@@ -41,24 +41,7 @@ public final class Constants {
         public static final double armManualScale = 0.1;
     }
 
-    public static class FieldConstants {
-
-        public static final double fieldLength = Units.feetToMeters(54.27);
-        public static final double fieldWidth = Units.feetToMeters(26.9375);
-
-        public static final Translation2d blueStageCenter =
-                new Translation2d(Units.inchesToMeters(156.895), fieldWidth / 2);
-        public static final Translation2d redStageCenter =
-                new Translation2d(fieldLength - Units.inchesToMeters(157.395), fieldWidth / 2);
-
-        public static final double stageDangerRadius = Units.inchesToMeters(85.9 / 2 + 12)
-                + SwerveConstants.PhysicalConstants.driveBaseRadius;
-    }
-
     public static class PositionConstants {
-        public static class ArmPositions {
-            public static final double intake = 0.1;
-        }
         public static class ShootingPositions {
             public static class ShootingPosition {
                 Pose2d pose;
@@ -287,7 +270,6 @@ public final class Constants {
 
         public static final double frontLimit = 0.0;
         public static final double backLimit = 1.58;
-        public static final double underStageLimit = 0.2;
 
         public static final double gearRatio = 1.0 / 256.0; // 256:1.
                                                                 // Make sure both numbers are doubles (x.0, not just x)
@@ -300,7 +282,7 @@ public final class Constants {
         public static final double armFreeSpeed = neoFreeSpeedRPM * velocityFactor;
 
         public static final ArmFeedforward armFeedforward =
-                new ArmFeedforward(0.0, 0.47, 12.0 / armFreeSpeed, 0.0);
+                new ArmFeedforward(0.0, 0.57, 12.0 / armFreeSpeed, 0.05);
         public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
         public static final TrapezoidProfile.Constraints armMotionConstraint =
                 new TrapezoidProfile.Constraints(2.0, 2.0);
