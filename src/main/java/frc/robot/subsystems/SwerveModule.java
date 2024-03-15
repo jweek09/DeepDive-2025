@@ -157,7 +157,7 @@ public class SwerveModule implements Sendable {
 
     /** Gets the absolute encoder rotation from the CANcoder
      * @param shouldRetry If true, the function will try up to
-     * {@link frc.robot.subsystems.SwerveModule#maximumCANcoderReadRetries maximumCANcoderReadRetries} times
+     * {@link SwerveModule#maximumCANcoderReadRetries maximumCANcoderReadRetries} times
      * to get a successful read from the sensor. Otherwise, it will just try to read immediately from the cached value*/
     public double getAbsoluteEncoderRad(boolean shouldRetry) {
         StatusSignal<Double> rotations = absoluteEncoder.getAbsolutePosition();
