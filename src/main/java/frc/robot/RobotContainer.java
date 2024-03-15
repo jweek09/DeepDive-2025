@@ -90,12 +90,15 @@ public class RobotContainer {
     }
 
     private void registerAutonomousCommands() {
-        NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance));
         NamedCommands.registerCommand("IntakeNoteCommand", new IntakeNoteCommand());
+        NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance)
+                .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
         NamedCommands.registerCommand("ShootSubwooferCommand",
-                new ShootCommand(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker));
+                new ShootCommand(0.22, 0.5)
+                        .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
         NamedCommands.registerCommand("ShootNearStageCommand",
-                new ShootCommand(Constants.PositionConstants.ShootingPositions.stageShot));
+                new ShootCommand(Constants.PositionConstants.ShootingPositions.stageShot)
+                        .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
     }
 
     /**
