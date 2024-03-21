@@ -44,7 +44,7 @@ public final class Constants {
     public static class PositionConstants {
         public static class ShootingPositions {
             public static class ShootingPosition {
-                public static final boolean useSmartFeed = false;
+                public static final boolean useSmartFeed = true;
                 public static final double dumbFeedShotTime = 1;
 
                 Pose2d pose;
@@ -305,12 +305,12 @@ public final class Constants {
         public static final double intakeWheelDiameter = Units.inchesToMeters(2.0);
         public static final double motorPositionConversionFactorRotationToMeters = intakeWheelDiameter * Math.PI;
 
-        public static final int breakbeamPort = 3;
+        public static final int breakbeamPort = 0;
         /** If the breakbeam reads true by default (when not blocked) */
         public static final boolean breakbeamTrueByDefault = true;
 
         public static final PIDGains positionGains = new PIDGains(1.0, 0.0, 0.0);
-        public static final double positionTolerance = 0.5;
+        public static final double positionTolerance = 0.01;
 
         public static final double intakePower = 0.7;
 
