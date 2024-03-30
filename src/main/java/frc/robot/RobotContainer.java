@@ -104,6 +104,31 @@ public class RobotContainer {
         NamedCommands.registerCommand("ShootNearStageCommand",
                 new ShootCommand(Constants.PositionConstants.ShootingPositions.stageShot)
                         .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
+
+        NamedCommands.registerCommand("IntakeNote",
+                intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower));
+        NamedCommands.registerCommand("ArmToSubwooferShootPosition",
+                armSubsystem.GoToAngleCommand(0.22));
+        NamedCommands.registerCommand("ShootAtSubwooferPosition",
+                launcherSubsystem.shootWithSmartFeed(0.5));
+        NamedCommands.registerCommand("ArmToIntakePosition",
+                armSubsystem.GoToIntakePositionCommand());
+        NamedCommands.registerCommand("ArmToSafePosition",
+                armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition));
+        NamedCommands.registerCommand("ArmToNearStageShootPosition",
+                armSubsystem.GoToAngleCommand(Constants.PositionConstants.ShootingPositions.stageShot.armAngle));
+        NamedCommands.registerCommand("ShootAtNearStagePosition",
+                launcherSubsystem.shootWithSmartFeed(0.6));
+        NamedCommands.registerCommand("StopParallelIfBreakbeamNotBroken",
+                Commands.either(
+                        Commands.waitSeconds(150),
+                        Commands.runOnce(() -> System.out.println("Stopping because Breakbeam not broken")),
+                        intakeSubsystem.getBreakbeamBrokenTrigger()));
+        NamedCommands.registerCommand("StopParallelIfBreakbeamBroken",
+                Commands.either(
+                        Commands.waitSeconds(150),
+                        Commands.runOnce(() -> System.out.println("Stopping because Breakbeam was broken")),
+                        intakeSubsystem.getBreakbeamBrokenTrigger().negate()));
     }
 
     /**

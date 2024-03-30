@@ -3,51 +3,51 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8,
-        "y": 4.2
+        "x": 1.4,
+        "y": 5.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0966326091992837,
-        "y": 4.081558516413737
+        "x": 1.702423309422513,
+        "y": 5.75245951961398
       },
       "isLocked": false,
-      "linkedName": "SourceSideSubwooferPosition"
+      "linkedName": "CenterSubwooferPosition"
     },
     {
       "anchor": {
-        "x": 1.4,
-        "y": 4.1
+        "x": 1.9958092570759758,
+        "y": 6.04998919763991
       },
       "prevControl": {
-        "x": 1.2637640460974244,
-        "y": 4.1
+        "x": 1.395284648706072,
+        "y": 5.483510599419777
       },
       "nextControl": {
-        "x": 1.5362359539025754,
-        "y": 4.1
+        "x": 2.4962094983960834,
+        "y": 6.522019857668124
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.15,
-        "y": 4.1
+        "x": 2.4829710755031633,
+        "y": 6.494451983509622
       },
       "prevControl": {
-        "x": 1.299624448008267,
-        "y": 4.1
+        "x": 2.2161222333977415,
+        "y": 6.256851328248787
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceNoteFromSourceSubwoofer"
+      "linkedName": "AmpNoteFromCenterSubwoofer"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 0,
+      "waypointRelativePos": 0,
+      "rotationDegrees": 45.0,
       "rotateFast": false
     }
   ],
@@ -61,11 +61,14 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 45.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "Subwoofer Note Pickup",
-  "previewStartingState": null,
-  "useDefaultConstraints": false
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
 }

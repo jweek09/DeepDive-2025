@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8,
-        "y": 6.8
+        "x": 0.82,
+        "y": 6.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6660254037844386,
-        "y": 7.3
+        "x": 1.6860254037844387,
+        "y": 7.25
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AmpSideSubwooferPosition"
     },
     {
       "anchor": {
