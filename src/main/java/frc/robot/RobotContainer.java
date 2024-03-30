@@ -84,10 +84,10 @@ public class RobotContainer {
         configureBindings();
 
 
-        SmartDashboard.putData(driveSubsystem);
-        SmartDashboard.putData(armSubsystem);
-        SmartDashboard.putData(intakeSubsystem);
-        SmartDashboard.putData(launcherSubsystem);
+//        SmartDashboard.putData(driveSubsystem);
+//        SmartDashboard.putData(armSubsystem);
+//        SmartDashboard.putData(intakeSubsystem);
+//        SmartDashboard.putData(launcherSubsystem);
     }
 
     private void registerAutonomousCommands() {
