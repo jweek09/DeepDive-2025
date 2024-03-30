@@ -51,6 +51,7 @@ public class LauncherSubsystem extends SubsystemBase {
         // create two new SPARK MAXs and configure them
         topMotor =
                 new CANSparkMax(LauncherConstants.topCanId, CANSparkLowLevel.MotorType.kBrushless);
+        topMotor.clearFaults();
         topMotor.setInverted(LauncherConstants.topMotorInverted);
         topMotor.setSmartCurrentLimit(LauncherConstants.currentLimit);
         topMotor.setIdleMode(IdleMode.kBrake);
@@ -59,6 +60,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
         bottomMotor =
                 new CANSparkMax(LauncherConstants.bottomCanId, CANSparkLowLevel.MotorType.kBrushless);
+        bottomMotor.clearFaults();
         bottomMotor.setInverted(LauncherConstants.bottomMotorInverted);
         bottomMotor.setSmartCurrentLimit(LauncherConstants.currentLimit);
         bottomMotor.setIdleMode(IdleMode.kBrake);

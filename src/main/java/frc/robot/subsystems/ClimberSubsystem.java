@@ -44,10 +44,12 @@ public class ClimberSubsystem extends SubsystemBase {
      */
     private ClimberSubsystem() {
         leftMotor = new VictorSPX(ClimberConstants.leftCanId);
+        leftMotor.clearStickyFaults();
         leftMotor.setInverted(ClimberConstants.leftInverted);
         leftMotor.setNeutralMode(NeutralMode.Brake);
 
         rightMotor = new VictorSPX(ClimberConstants.rightCanId);
+        rightMotor.clearStickyFaults();
         rightMotor.setInverted(ClimberConstants.rightInverted);
         rightMotor.setNeutralMode(NeutralMode.Brake);
 
