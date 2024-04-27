@@ -64,7 +64,7 @@
 
 This is the robot code for FRC Team 7913 Bearly Functioning's 2024 Crescendo Season. This will be our 4th season competing, and we're hoping to do well.
 
-This project includes documentation on our choices and how various components of the robot are implemented, in an effort to be more open. We hope this benefits future teams, both ours and others, in understanding the process behind coding our robot and the choices that went into it. Take a look at our journal/documentation [here](https://frc-7913.github.io/Crescendo-2024/). If you are interested in documenting your code similarly, check out [the page](https://frc-7913.github.io/Crescendo-2024/documenting/) on our documentation.
+This season, we've tried to document our choices and how various components of the robot are implemented in an effort to be more open. We hope this benefits future teams, both ours and others, in understanding the process behind coding our robot and the choices that went into it. Take a look at our journal/documentation [here](https://drive.google.com/drive/folders/1KGMYRXjeesealSjb3gIO_vC2ikN4yiFH).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -73,8 +73,19 @@ This project includes documentation on our choices and how various components of
 ### Built With
 
 #### Robot Code
-* [WPILib](https://wpilib.org/)
+* [WPILib](https://docs.wpilib.org/en/latest/docs/software/what-is-wpilib.html) for just about everything
+* REVLib for SPARK MAXes
+* Phoenix 5 and Phoenix 6 for Victors and CANcoders, respectively
 
+#### Autonomous Pathplanning and Following
+* [PathPlanner](https://pathplanner.dev/) for visually building and effortlessly executing autonomous routines
+
+#### Other Useful Tools
+* [REV Hardware Client](https://docs.revrobotics.com/rev-hardware-client) for configuring SPARK MAXes
+* [Phoenix Tuner X](https://pro.docs.ctr-electronics.com/en/stable/docs/tuner/index.html) for configuring Victors and CANcoders
+* [FRC Plugin](https://plugins.jetbrains.com/plugin/9405-frc) for JetBrains IDEs
+* SSH (macOS/Linux) or PuTTy (Windows) for [cleaning up the RoboRIO](https://docs.google.com/document/d/1Cd01X3eviaLGgd5urtJ3XSIjzB4kMR3gBS9SVEG7tIg/) of old PathPlanner paths and JAR deployments
+* [Graphite](https://graphite.dev/) for [code collaboration](https://docs.google.com/document/d/1sNsUPg90-Ui02BnugGDdsafTT9l4FStFcYlKmAF6HSg/edit#heading=h.gb7aqt9wikzw)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -122,12 +133,16 @@ On the command line, run `gradle deploy` (with Gradle installed), `gradlew.bat d
 Each mode has a specific purpose.
 
 ##### Teleop
+> [!CAUTION]
+> Limelight-based AprilTag localization was scrapped this season due to hardware issues and time constraints
 Fully operable, uses cameras to calibrate field position. To turn off camera features when not on a field to avoid bad readings of AprilTags, use `Test` mode. Selecting a driver station to work from for simulation may be helpful, too.
 
 ##### Autonomous
 Runs the robot without driver input. If cameras and sensing aren't available, check the box on the Shuffleboard to select only auto modes without camera features.
 
 ##### Test
+> [!CAUTION]
+> This was never implemented
 Has full driver control, but won't use cameras to calibrate position on field. Optionally, you can check a box to use camera calibration when running the shooter, which assumes you have AprilTags on a test Speaker.
 
 _For more examples, please refer to the [Documentation](https://FRC-7913.github.io/Crescendo-2024)_
