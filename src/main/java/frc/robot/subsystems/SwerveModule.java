@@ -43,6 +43,9 @@ public class SwerveModule implements Sendable {
         drivingSparkMax = new CANSparkMax(driveMotorId, CANSparkLowLevel.MotorType.kBrushless);
         turningSparkMax = new CANSparkMax(turningMotorId, CANSparkLowLevel.MotorType.kBrushless);
 
+        drivingSparkMax.clearFaults();
+        turningSparkMax.clearFaults();
+
         // Factory reset, so we get the SPARKS MAX to a known state before configuring
         // them. This is useful in case a SPARK MAX is swapped out.
         drivingSparkMax.restoreFactoryDefaults();

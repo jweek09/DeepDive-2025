@@ -70,6 +70,7 @@ public class ArmSubsystem extends SubsystemBase {
     private ArmSubsystem() {
 
         leftMotor = new CANSparkMax(ArmConstants.leftCanID, MotorType.kBrushless);
+        leftMotor.clearFaults();
         leftMotor.restoreFactoryDefaults();
         leftMotor.setInverted(ArmConstants.leftInverted);
         leftMotor.setSmartCurrentLimit(ArmConstants.currentLimit);
@@ -80,6 +81,7 @@ public class ArmSubsystem extends SubsystemBase {
         leftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmConstants.frontLimit);
 
         rightMotor = new CANSparkMax(ArmConstants.rightCanID, MotorType.kBrushless);
+        rightMotor.clearFaults();
         rightMotor.restoreFactoryDefaults();
         rightMotor.setInverted(ArmConstants.rightInverted);
         rightMotor.setSmartCurrentLimit(ArmConstants.currentLimit);
