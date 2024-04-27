@@ -111,11 +111,11 @@ public class DriveSubsystem extends SubsystemBase {
         //       in the constructor or in the robot coordination class, such as RobotContainer.
         //       Also, you can call addChild(name, sendableChild) to associate sendables with the subsystem
         //       such as SpeedControllers, Encoders, DigitalInputs, etc.
-        SmartDashboard.putData("NavX Gyroscope", gyro);
-        SmartDashboard.putData("Front Left Swerve Module", frontLeft);
-        SmartDashboard.putData("Front Right Swerve Module", frontRight);
-        SmartDashboard.putData("Back Left Swerve Module", backLeft);
-        SmartDashboard.putData("Back Right Swerve Module", backRight);
+//        SmartDashboard.putData("NavX Gyroscope", gyro);
+//        SmartDashboard.putData("Front Left Swerve Module", frontLeft);
+//        SmartDashboard.putData("Front Right Swerve Module", frontRight);
+//        SmartDashboard.putData("Back Left Swerve Module", backLeft);
+//        SmartDashboard.putData("Back Right Swerve Module", backRight);
 
         SmartDashboard.putData("Field", field);
 

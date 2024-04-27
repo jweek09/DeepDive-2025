@@ -254,7 +254,6 @@ public class ArmSubsystem extends SubsystemBase {
                         getEncoderPosition(), targetState.velocity);
 
         if (!armAutomaticHoldEnabled) {
-            System.out.println("Not running automatic because automatic hold is disabled.");
             leftMotor.set(0.0);
             rightMotor.set(0.0);
             return;
