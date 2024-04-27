@@ -3,8 +3,10 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Subwoofer Note Pickup",
+    "Note To Note",
+    "Note To Stage Shot",
     "Subwoofer Leave",
+    "Subwoofer Note Pickup",
     "Subwoofer Note Return"
   ],
   "autoFolders": [

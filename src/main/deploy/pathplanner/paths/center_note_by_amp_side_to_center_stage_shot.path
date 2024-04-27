@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.65,
-        "y": 5.5
+        "x": 3.0,
+        "y": 6.109571996859767
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.65,
-        "y": 5.5
+        "x": 2.8528937348053267,
+        "y": 5.888720303296261
       },
       "isLocked": false,
-      "linkedName": "CenterNoteFromCenterSubwoofer"
+      "linkedName": "CenterNoteFromAmpSubwoofer"
     },
     {
       "anchor": {
-        "x": 1.4,
-        "y": 5.5
+        "x": 2.4829710755031633,
+        "y": 5.496773447043918
       },
       "prevControl": {
-        "x": 2.4,
-        "y": 5.5
+        "x": 2.7185814695290107,
+        "y": 5.848867004653653
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CenterSubwooferPosition"
+      "linkedName": "NearStageShotPosition"
     }
   ],
   "rotationTargets": [],
@@ -39,11 +39,14 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
-    "rotateFast": false
+    "rotation": 0.0,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "Subwoofer Note Return",
-  "previewStartingState": null,
+  "folder": "Note To Stage Shot",
+  "previewStartingState": {
+    "rotation": -89.37147570568048,
+    "velocity": 0
+  },
   "useDefaultConstraints": true
 }

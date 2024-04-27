@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.65,
-        "y": 5.5
+        "x": 2.4829710755031633,
+        "y": 6.494451983509622
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.65,
-        "y": 5.5
+        "x": 1.872480074945269,
+        "y": 5.866317845916942
       },
       "isLocked": false,
-      "linkedName": "CenterNoteFromCenterSubwoofer"
+      "linkedName": "AmpNoteFromCenterSubwoofer"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 5.5
       },
       "prevControl": {
-        "x": 2.4,
-        "y": 5.5
+        "x": 2.1227530215477097,
+        "y": 5.831320015504614
       },
       "nextControl": null,
       "isLocked": false,
@@ -44,6 +44,9 @@
   },
   "reversed": false,
   "folder": "Subwoofer Note Return",
-  "previewStartingState": null,
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
   "useDefaultConstraints": true
 }

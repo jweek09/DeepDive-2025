@@ -12,7 +12,7 @@
         "y": 6.8276457135307576
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AmpSideSubwooferPosition"
     },
     {
       "anchor": {
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AmpNoteFromAmpSubwoofer"
     }
   ],
   "rotationTargets": [

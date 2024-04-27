@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7981235995954136,
+        "x": 0.8,
         "y": 4.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6641490033798523,
+        "x": 1.6660254037844386,
         "y": 3.7
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SourceSideSubwooferPosition"
     },
     {
       "anchor": {
