@@ -23,9 +23,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeNoteCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SwerveControllerDriveCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -96,7 +94,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance)
                 .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
         NamedCommands.registerCommand("IntakeArmPositionCommand", armSubsystem.GoToIntakePositionCommand());
-        NamedCommands.registerCommand("IntakeNoteCommand", Autos.pickupCommand(intakeSubsystem, launcherSubsystem));
+        NamedCommands.registerCommand("IntakeNoteCommand",
+                intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower).withTimeout(3));
         NamedCommands.registerCommand("ShootSubwooferNoSafetyMoveCommand",
                 new ShootCommand(0.22, 0.5));
         NamedCommands.registerCommand("ShootSubwooferCommand",
@@ -206,7 +205,7 @@ public class RobotContainer {
         driverController.a().onTrue(new InstantCommand(() -> teleopDriveSpeedReduced = false));
 
         driverController.leftBumper()
-                .onTrue(Commands.run(() -> intakeSubsystem.setPower(Constants.IntakeConstants.intakePower), intakeSubsystem));
+                .onTrue(intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower));
 
         driverController.b()
                 .whileTrue(new RunCommand(() -> {
@@ -215,8 +214,8 @@ public class RobotContainer {
                 }, intakeSubsystem, launcherSubsystem));
 
         driverController.rightBumper()
-                .onTrue(launcherSubsystem.shootWithDumbFeed(
-                        Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.launcherSpeed, 1.5));
+                .onTrue(launcherSubsystem.shootWithSmartFeed(
+                        Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.launcherSpeed));
 
         driverController.leftTrigger()
                 .whileTrue(Commands.run(() -> intakeSubsystem.setPower(driverController.getLeftTriggerAxis()), intakeSubsystem));

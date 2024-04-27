@@ -142,11 +142,15 @@ public class IntakeSubsystem extends SubsystemBase {
         return newCommand;
     }
 
-    public Command runUntilPickup(double power) {
-        return Commands.run(() -> setPower(power), // Runs at the given power
+    public Command RunUntilPickupCommand(double power) {
+        return Commands.runOnce(() -> setPower(power), // Runs at the given power
                         this) // Requiring this subsystem
-                .until(getBreakbeamBrokenTrigger()) // Until the beam is broken
-                .finallyDo((interrupted) -> setPower(0.0)); // At which point it stops the motors
+                .andThen(Commands.waitUntil(getBreakbeamBrokenTrigger())) // Until the beam is broken
+                .finallyDo(() -> setPower(0.0)); // At which point it stops the motors
+    }
+
+    public Command IntakeNoteCommand(double power) {
+        return RunUntilPickupCommand(power).andThen(retract(0.05));
     }
 
     @Override
