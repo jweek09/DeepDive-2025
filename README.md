@@ -133,7 +133,7 @@ On the command line, run `gradle deploy` (with Gradle installed), `gradlew.bat d
 Each mode has a specific purpose.
 
 ##### Teleop
-> [!CAUTION]
+> [!NOTE]
 > Limelight-based AprilTag localization was scrapped this season due to hardware issues and time constraints
 
 Fully operable, uses cameras to calibrate field position. To turn off camera features when not on a field to avoid bad readings of AprilTags, use `Test` mode. Selecting a driver station to work from for simulation may be helpful, too.
@@ -142,7 +142,7 @@ Fully operable, uses cameras to calibrate field position. To turn off camera fea
 Runs the robot without driver input. If cameras and sensing aren't available, check the box on the Shuffleboard to select only auto modes without camera features.
 
 ##### Test
-> [!CAUTION]
+> [!NOTE]
 > This was never implemented
 
 Has full driver control, but won't use cameras to calibrate position on field. Optionally, you can check a box to use camera calibration when running the shooter, which assumes you have AprilTags on a test Speaker.
@@ -155,7 +155,7 @@ _For more examples, please refer to the [Documentation](https://FRC-7913.github.
 
 <!-- ROADMAP -->
 ## Roadmap
-> [!CAUTION]
+> [!NOTE]
 > This was wishful thinking and this wasn't used that much... Maybe next year?
 
 See the [project](https://github.com/FRC-7913/project/Crescendo-2024) or the [issue list](https://github.com/FRC-7913/Crescendo-2024/issues) for a full list of proposed features (and known issues).
