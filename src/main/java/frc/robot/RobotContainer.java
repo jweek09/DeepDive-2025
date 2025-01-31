@@ -6,32 +6,18 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.ShootCommand;
-import frc.robot.commands.SwerveControllerDriveCommand;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LauncherSubsystem;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -45,13 +31,7 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
-
-    private final ArmSubsystem armSubsystem = ArmSubsystem.getInstance();
     private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
-    private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
-    private final LauncherSubsystem launcherSubsystem = LauncherSubsystem.getInstance();
-    private final ClimberSubsystem climberSubsystem = ClimberSubsystem.getInstance();
     
     private DoubleSupplier defaultLauncherSpeed;
     private final BooleanSupplier isRedAlliance = () ->
@@ -68,8 +48,6 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autonomousCommand;
     private GenericEntry autonomousDelayTime;
-
-    private double temporaryArmRotation = armSubsystem.getEncoderPosition();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -91,44 +69,6 @@ public class RobotContainer {
     }
 
     private void registerAutonomousCommands() {
-        NamedCommands.registerCommand("ShootCommand", new ShootCommand(() -> driveSubsystem.getPose().getTranslation(), () -> false, isRedAlliance)
-                .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
-        NamedCommands.registerCommand("IntakeArmPositionCommand", armSubsystem.GoToIntakePositionCommand());
-        NamedCommands.registerCommand("IntakeNoteCommand",
-                intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower).withTimeout(3));
-        NamedCommands.registerCommand("ShootSubwooferNoSafetyMoveCommand",
-                new ShootCommand(0.22, 0.5));
-        NamedCommands.registerCommand("ShootSubwooferCommand",
-                new ShootCommand(0.22, 0.5)
-                        .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
-        NamedCommands.registerCommand("ShootNearStageCommand",
-                new ShootCommand(Constants.PositionConstants.ShootingPositions.stageShot)
-                        .andThen(armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition)));
-
-        NamedCommands.registerCommand("IntakeNote",
-                intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower));
-        NamedCommands.registerCommand("ArmToSubwooferShootPosition",
-                armSubsystem.GoToAngleCommand(0.22));
-        NamedCommands.registerCommand("ShootAtSubwooferPosition",
-                launcherSubsystem.shootWithSmartFeed(0.5));
-        NamedCommands.registerCommand("ArmToIntakePosition",
-                armSubsystem.GoToIntakePositionCommand());
-        NamedCommands.registerCommand("ArmToSafePosition",
-                armSubsystem.GoToAngleCommand(Constants.ArmConstants.armWithinFramePosition));
-        NamedCommands.registerCommand("ArmToNearStageShootPosition",
-                armSubsystem.GoToAngleCommand(Constants.PositionConstants.ShootingPositions.stageShot.armAngle));
-        NamedCommands.registerCommand("ShootAtNearStagePosition",
-                launcherSubsystem.shootWithSmartFeed(0.6));
-        NamedCommands.registerCommand("StopParallelIfBreakbeamNotBroken",
-                Commands.either(
-                        Commands.waitSeconds(150),
-                        Commands.runOnce(() -> System.out.println("Stopping because Breakbeam not broken")),
-                        intakeSubsystem.getBreakbeamBrokenTrigger()));
-        NamedCommands.registerCommand("StopParallelIfBreakbeamBroken",
-                Commands.either(
-                        Commands.waitSeconds(150),
-                        Commands.runOnce(() -> System.out.println("Stopping because Breakbeam was broken")),
-                        intakeSubsystem.getBreakbeamBrokenTrigger().negate()));
     }
 
     /**
@@ -190,94 +130,8 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-        new Trigger(exampleSubsystem::exampleCondition)
-                .onTrue(new ExampleCommand(exampleSubsystem));
-        
-               //  new Trigger(Constants)
-               // .onTrue(new shootingPositions.stageShot(Constants));
-        
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-        // cancelling on release.
-        // driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+    };
 
-
-        BooleanSupplier invertDriverControls = () -> DriverStation.getAlliance().filter(value -> value == Alliance.Red).isPresent();
-
-        // set the arm subsystem to run the "runAutomatic" function continuously when no other command is running
-        armSubsystem.setDefaultCommand(new RunCommand(armSubsystem::runAutomatic, armSubsystem));
-
-        // set the intake to stop (0 power) when no other command is running
-        intakeSubsystem.setDefaultCommand(new RunCommand(() -> intakeSubsystem.setPower(0.0), intakeSubsystem));
-
-        // configure the launcher to stop when no other command is running
-        launcherSubsystem.setDefaultCommand(new RunCommand(launcherSubsystem::stopLauncher, launcherSubsystem));
-
-        climberSubsystem.setDefaultCommand(Commands.run(climberSubsystem::stopMotors, climberSubsystem));
-
-        driveSubsystem.setDefaultCommand(new SwerveControllerDriveCommand(
-                () -> (invertDriverControls.getAsBoolean() ? -1 : 1)
-                        * (teleopDriveSpeedReduced ? 0.33 : 1)
-                        * -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.leftYDeadband),
-                () -> (invertDriverControls.getAsBoolean() ? -1 : 1)
-                        * (teleopDriveSpeedReduced ? 0.33 : 1)
-                        * -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.leftXDeadband),
-                () -> -driverController.getRightX(),
-                () -> !driverController.getHID().getYButton() // Switch to robot oriented when Y is held
-        ));
-
-        driverController.x().onTrue(new InstantCommand(() -> teleopDriveSpeedReduced = true));
-        driverController.a().onTrue(new InstantCommand(() -> teleopDriveSpeedReduced = false));
-
-        driverController.leftBumper()
-                .onTrue(intakeSubsystem.IntakeNoteCommand(Constants.IntakeConstants.intakePower));
-
-        driverController.b()
-                .whileTrue(new RunCommand(() -> {
-                    intakeSubsystem.setPower(-Constants.IntakeConstants.intakePower);
-                    launcherSubsystem.runLauncher(-0.1);
-                }, intakeSubsystem, launcherSubsystem));
-
-        driverController.rightBumper()
-                .onTrue(launcherSubsystem.shootWithSmartFeed(
-                        Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.launcherSpeed));
-
-        driverController.leftTrigger()
-                .whileTrue(Commands.run(() -> intakeSubsystem.setPower(driverController.getLeftTriggerAxis()), intakeSubsystem));
-
-        driverController.rightTrigger()
-                .whileTrue(Commands.run(() -> launcherSubsystem.runLauncher(driverController.getRightTriggerAxis() * 0.55), launcherSubsystem));
-
-        driverController.pov(0)
-                .whileTrue(Commands.run(() -> climberSubsystem.runMotors(Constants.ClimberConstants.releaseSpeed), climberSubsystem));
-
-        driverController.pov(180)
-                .whileTrue(Commands.run(() -> climberSubsystem.runMotors(Constants.ClimberConstants.climbSpeed), climberSubsystem));
-
-                driverController.start().onTrue(Commands.runOnce(() -> {
-                        driveSubsystem.resetOdometry(new Pose2d(
-                                driveSubsystem.getPose().getTranslation(),
-                                (isRedAlliance.getAsBoolean()) ? new Rotation2d(Math.PI) : new Rotation2d(0.0))
-                        );
-                }));
-
-        driverController.back().onTrue(Commands.runOnce(() -> driveSubsystem.resetWheelEncoders()));
-
-        new Trigger(() ->
-                Math.abs(operatorController.getRightTriggerAxis() - operatorController.getLeftTriggerAxis()) > OperatorConstants.armManualDeadband
-        ).whileTrue(new RunCommand(
-                () ->
-                        armSubsystem.runManual((operatorController.getRightTriggerAxis() - operatorController.getLeftTriggerAxis()) * OperatorConstants.armManualScale)
-                , armSubsystem));
-
-        operatorController.a().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.inFrontOfSpeaker.getArmAngle())));
-        operatorController.x().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.stageShot.getArmAngle())));
-        operatorController.y().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.farStageShot.getArmAngle())));
-        operatorController.b().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.ampScore.getArmAngle())));
-        operatorController.rightBumper().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(Constants.PositionConstants.ShootingPositions.theSource.getArmAngle())));
-        operatorController.leftBumper().onTrue(armSubsystem.GoToIntakePositionCommand());
-        operatorController.povUp().onTrue(new InstantCommand(() -> armSubsystem.setTargetPosition(0.452)));
-    }
     
     
     /**

@@ -13,11 +13,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import frc.lib.PIDGains;
 
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -249,114 +246,9 @@ public final class Constants {
             public static final double rotationP = 5.0;
             public static final double rotationI = 0.0;
             public static final double rotationD = 0.0;
-
-            public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
-                    new TrapezoidProfile.Constraints(
-                            maxAngularSpeedRadiansPerSecond,
-                            maxAngularAccelerationRadiansPerSecondSquared);
         }
     }
 
-    public static class ArmConstants {
-        public static final int leftCanID = 16;
-        public static final boolean leftInverted = true;
-
-        public static final int rightCanID = 17;
-        public static final boolean rightInverted = false;
-
-        /** The port for the limit switch on the front (intake side) of the robot */
-        public static final int frontLimitSwitchPort = 2;
-        /** The port for the limit switch on the back (limelight side) of the robot */
-        public static final int backLimitSwitchPort = 1;
-
-        public static final int currentLimit = 40;
-
-        public static final double frontLimit = 0.0;
-        public static final double backLimit = 1.58;
-
-        public static final double gearRatio = 1.0 / 256.0; // 256:1.
-                                                                // Make sure both numbers are doubles (x.0, not just x)
-                                                                // to avoid dividing by zero
-        public static final double positionFactor =
-                gearRatio
-                        * 2.0
-                        * Math.PI; // multiply ThroughBore value by this number and get arm position in radians
-        public static final double velocityFactor = gearRatio * 2.0 * Math.PI / 60.0;
-        public static final double armFreeSpeed = neoFreeSpeedRPM * velocityFactor;
-
-        public static final ArmFeedforward armFeedforward =
-                new ArmFeedforward(0.0, 0.57, 12.0 / armFreeSpeed, 0.05);
-        public static final PIDGains armPositionGains = new PIDGains(0.6, 0.0, 0.0);
-        public static final TrapezoidProfile.Constraints armMotionConstraint =
-                new TrapezoidProfile.Constraints(2.0, 2.0);
-        public static final double intakePosition = 0.0;
-        public static final double armWithinFramePosition = 1.31;
-        public static double atTargetThreshold = 0.05;
-
-        /** The maximum time the {@link frc.robot.subsystems.ArmSubsystem#GoToAngleCommand(double)} command will take
-         * to go to a position. It will time out if it doesn't successfully*/
-        public static double maxGoToAngleTimeSeconds = 2.5;
-    }
-
-    public static class IntakeConstants {
-        public static final int canID = 13;
-        public static final boolean motorInverted = false;
-        public static final int currentLimit = 20;
-        public static final double intakeWheelDiameter = Units.inchesToMeters(2.0);
-        public static final double motorPositionConversionFactorRotationToMeters = intakeWheelDiameter * Math.PI;
-
-        public static final int breakbeamPort = 0;
-        /** If the breakbeam reads true by default (when not blocked) */
-        public static final boolean breakbeamTrueByDefault = true;
-
-        public static final PIDGains positionGains = new PIDGains(1.0, 0.0, 0.0);
-        public static final double positionTolerance = 0.01;
-
-        public static final double intakePower = 0.7;
-
-        /** The time after which a note past the breakbeam is clear of the launcher */
-        public static double clearLauncherTime = 0.2;
-    }
-
-    public static class LauncherConstants {
-        public static final int topCanId = 14;
-        public static final int bottomCanId = 15;
-        public static final boolean topMotorInverted = false;
-        public static final boolean bottomMotorInverted = false;
-
-        public static final int currentLimit = 80;
-        public static double shooterWarmupTime = 0.5;
-    }
-
-    public static class ClimberConstants {
-        public static final int leftCanId = 18;
-        /** To let out (raise) the arm, the left motor will spin clockwise if false, counterclockwise if true.
-         * It will run in the opposite direction when retracting (climbing). */
-        public static final boolean leftInverted = true;
-
-        public static final int rightCanId = 19;
-        /** To let out (raise) the arm, the right motor will spin clockwise if false, counterclockwise if true.
-         * It will run in the opposite direction when retracting (climbing). */
-        public static final boolean rightInverted = false;
-
-        /** The power to run the motors at to release (raise) the arms */
-        public static final double releaseSpeed = 1;
-        /** The power to run the motors at to climb (lower) the arms.
-         * MAKE SURE THIS IS NEGATIVE!!! */
-        public static final double climbSpeed = - // Don't you dare remove this negative sign
-                                                0.5; // Change this number instead
-
-        /** The time taken by the climber in seconds,
-         * running at the given {@link ClimberConstants#releaseSpeed releaseSpeed},
-         * to reach its highest point.
-         */
-        public static final double releaseToTopTimeSeconds = 0.0;
-        /** The time taken by the climber in seconds,
-         * running at the given {@link ClimberConstants#climbSpeed climbSpeed},
-         * to retract from hits highest point to the bottom.
-         */
-        public static final double retractFullyDownTimeSeconds = 0.0;
-    }
 
     public static final double neoFreeSpeedRPM = 5676;
 }
